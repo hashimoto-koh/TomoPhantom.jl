@@ -37,6 +37,91 @@ function fetch_file!(repo, ref, relative_path)
     return destination
 end
 
+function patch_source!(path, old_snippet, new_snippet; label)
+    source = replace(read(path, String), "\r\n" => "\n")
+    if occursin(new_snippet, source)
+        return false
+    end
+    if !occursin(old_snippet, source)
+        @warn "Skipping local TomoPhantom patch because the expected hunk was not found" file=path label
+        return false
+    end
+    write(path, replace(source, old_snippet => new_snippet))
+    return true
+end
+
+const PATCH_2D_RECTANGLE_OLD = """
+                SS = xwid/CF*C0;
+                
+                if (fabs(CF) <= (float)EPS) {
+                    SS = ywid*C0;
+                    if ((P0 - A2) > (float)EPS) {
+                        SS=0.0f;
+                    }
+                }
+                if (fabs(SF) <= (float)EPS) {
+                    SS = xwid*C0;
+                    if ((P0 - B2) > (float)EPS) {
+                        SS=0.0f;
+                    }
+                }
+                TF = SF/CF;
+"""
+
+const PATCH_2D_RECTANGLE_NEW = """
+                if (fabs(CF) <= 1.0e-6f) {
+                    SS = ywid*C0;
+                    if ((P0 - A2) > (float)EPS) {
+                        SS=0.0f;
+                    }
+                    A[tt*AngTot*P+ j*AngTot+i] += (N/2.0f)*SS;
+                    continue;
+                }
+                if (fabs(SF) <= 1.0e-6f) {
+                    SS = xwid*C0;
+                    if ((P0 - B2) > (float)EPS) {
+                        SS=0.0f;
+                    }
+                    A[tt*AngTot*P+ j*AngTot+i] += (N/2.0f)*SS;
+                    continue;
+                }
+                SS = xwid/CF*C0;
+                TF = SF/CF;
+"""
+
+const PATCH_3D_RECTANGLE_OLD = """
+                                    SS = xwid/CF*C0;
+                                    
+                                    if (fabs(CF) <= (float)EPS) {
+                                        SS = ywid*C0;
+                                        if ((P0 - A2) > (float)EPS) SS=0.0f;
+                                    }
+                                    if (fabs(SF) <= (float)EPS) {
+                                        SS = xwid*C0;
+                                        if ((P0 - B2) > (float)EPS) SS=0.0f;
+                                    }
+                                    
+                                    TF = SF/CF;
+"""
+
+const PATCH_3D_RECTANGLE_NEW = """
+                                    if (fabs(CF) <= 1.0e-6f) {
+                                        SS = ywid*C0;
+                                        if ((P0 - A2) > (float)EPS) SS=0.0f;
+                                        A[index] += (N/2.0f)*SS;
+                                        continue;
+                                    }
+                                    if (fabs(SF) <= 1.0e-6f) {
+                                        SS = xwid*C0;
+                                        if ((P0 - B2) > (float)EPS) SS=0.0f;
+                                        A[index] += (N/2.0f)*SS;
+                                        continue;
+                                    }
+                                    
+                                    SS = xwid/CF*C0;
+                                    TF = SF/CF;
+"""
+
 upstream_repo_name = env_or_default("TOMOPHANTOM_UPSTREAM_REPO", DEFAULT_UPSTREAM_REPO)
 upstream_ref_name = env_or_default("TOMOPHANTOM_UPSTREAM_REF", DEFAULT_UPSTREAM_REF)
 
@@ -65,6 +150,11 @@ core_files = [
 for relative_path in core_files
     fetch_file!(upstream_repo_name, upstream_ref_name, relative_path)
 end
+
+patch_source!(joinpath(upstream_root, "Core", "TomoP2DModelSino_core.c"),
+              PATCH_2D_RECTANGLE_OLD, PATCH_2D_RECTANGLE_NEW; label="2d-rectangle-sinogram")
+patch_source!(joinpath(upstream_root, "Core", "TomoP3DModelSino_core.c"),
+              PATCH_3D_RECTANGLE_OLD, PATCH_3D_RECTANGLE_NEW; label="3d-rectangle-sinogram")
 
 run(`$cmake -S $upstream_root -B $build_dir -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$prefix_dir -DBUILD_PYTHON_WRAPPER=OFF -DBUILD_MATLAB_WRAPPER=OFF`)
 run(`$cmake --build $build_dir --config Release`)

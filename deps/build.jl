@@ -77,7 +77,7 @@ isfile(libpath) || error("Built library was not found at $(libpath)")
 phantom2d_path = joinpath(upstream_root, "tomophantom", "phantomlib", "Phantom2DLibrary.dat")
 phantom3d_path = joinpath(upstream_root, "tomophantom", "phantomlib", "Phantom3DLibrary.dat")
 
-deps_file = joinpath(@__DIR__, "deps.jl")
+deps_file = joinpath(@__DIR__, "deps-generated.jl")
 open(deps_file, "w") do io
     println(io, "const libtomophantom = ", repr(libpath))
     println(io, "const phantom2d_library_path = ", repr(phantom2d_path))

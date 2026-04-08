@@ -1,3 +1,4 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
 TomoPhantom = "de622df8-b0f6-49e0-8ea2-c4d7bb96baf5"

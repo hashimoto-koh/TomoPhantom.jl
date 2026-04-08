@@ -1,8 +1,8 @@
 name = "TomoPhantom"
 uuid = "de622df8-b0f6-49e0-8ea2-c4d7bb96baf5"
+license = "Apache-2.0"
 authors = ["TomoPhantom contributors"]
 version = "0.1.0"
-license = "Apache-2.0"
 
 [deps]
 Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"

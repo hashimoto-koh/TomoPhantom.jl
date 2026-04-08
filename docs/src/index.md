@@ -1,45 +1,19 @@
 # TomoPhantom.jl
 
-`TomoPhantom.jl` is a Julia binding layer for the native TomoPhantom C implementation.
+Welcome to the documentation for `TomoPhantom.jl`. This package is a Julia native binding layer for the [TomoPhantom](https://github.com/dkazanc/TomoPhantom) C core, widely used for generating phantoms and sinograms in tomographic imaging research.
 
-## Current scope
+## Features
 
-This package currently exposes:
+This package exposes:
+- **2D / 3D Model Phantoms**: Generate standard synthetic test models (such as Shepp-Logan).
+- **2D / 3D Object Phantoms**: Generate shapes using parametric representations like ellipses, Gaussians, rectangles, etc.
+- **Analytical Sinograms**: Create accurate 2D and 3D direct analytical projections (sinograms) ideal for mathematical testing and algorithmic validation.
 
-- 2D model phantoms
-- 3D model phantoms
-- 2D object phantoms
-- 3D object phantoms
-- 2D analytical sinograms
-- 3D analytical projection data
+## Documentation Outline
 
-## Installation
+- **[Introduction](introduction.md)**: Learn about TomoPhantom and this Julia port.
+- **[Installation Guide](installation.md)**: Instructions for adding the package and compiling dependencies.
+- **Tutorials**: Get started quickly with practical examples for [2D Phantoms](tutorials/2d-phantom.md), [Models](tutorials/models.md) and [Projections](tutorials/projections.md).
+- **API Reference**: Detailed breakdown of exported modules and functions including [Core Structures](api/core.md), [Generators](api/generators.md), and [Projections](api/projections.md).
 
-```julia
-using Pkg
-Pkg.add(url="https://github.com/hashimoto-koh/TomoPhantom.jl.git")
-```
-
-The current package build fetches the required upstream TomoPhantom source files and model-library files, then compiles the native C library with CMake during package installation.
-
-## Semantics
-
-This package currently returns native-order arrays:
-
-- `phantom2d`: `A[x, y]`
-- `phantom3d`: `A[x, y, z]`
-- `sino2d_natural`: `S[angle, u]`
-- `sino3d_natural`: `S[u, v, angle]`
-
-If a consumer wants alternate axis order, use the provided no-copy adapters:
-
-- `sino2d_u_angle_view`
-- `sino3d_u_angle_v_view`
-
-## Packaging note
-
-This package is designed so the Julia repository can stay minimal.
-Only Julia code, build logic, tests, and documentation need to live in the Julia package repository.
-The upstream C sources and `.dat` model-library files are fetched at build time.
-
-The default upstream ref is pinned to a specific commit for reproducibility. Override `TOMOPHANTOM_UPSTREAM_REF` only when you intentionally want a different upstream state.
+Explore the sections via the sidebar to find what you need.

@@ -13,6 +13,11 @@ export NativeCore, LibraryModel, SinoGeom2D, SinoGeom3D,
 
 include(joinpath(@__DIR__, "..", "deps", "deps.jl"))
 
+"""
+    NativeCore
+
+Provides a robust binding context holding function pointers for the natively compiled TomoPhantom C core library. Instantiated implicitly by default during core routine calls, avoiding constant `dlopen` overhead.
+"""
 struct NativeCore
     lib::Ptr{Cvoid}
     fp_model2d::Ptr{Cvoid}
@@ -25,17 +30,46 @@ struct NativeCore
     fp_objectsino3d::Ptr{Cvoid}
 end
 
+"""
+    LibraryModel
+
+Maps directly to a precomputed `.dat` phantom library matrix file.
+
+**Fields**:
+- `id::Int`: The discrete model identifier index.
+- `dat_path::String`: The absolute path where the library file resides.
+"""
 struct LibraryModel
     id::Int
     dat_path::String
 end
 
+"""
+    SinoGeom2D
+
+Maintains geometric specifications for generating a 2D line-integral sinogram projection via parallel beam pathways.
+
+**Fields**:
+- `phantom_size::Int`: Matrix density of the continuous geometric bounds.
+- `detector_u::Int`: The lateral resolution mapped uniformly across the detector array.
+- `angles_deg::Vector{Float32}`: Array of tracking angles swept by the path projector.
+"""
 struct SinoGeom2D
     phantom_size::Int
     detector_u::Int
     angles_deg::Vector{Float32}
 end
 
+"""
+    SinoGeom3D
+
+Maintains fully volumetric geometric specifications for evaluating 3D planar-integral projections.
+
+**Fields**:
+- `phantom_size::Int`: Equivalent volumetric resolution mapped to `[N, N, N]` space.
+- `detector_u::Int`, `detector_v::Int`: Dimensions of the planar 2D detector array.
+- `z1::Int`, `z2::Int`: Specific volumetric slice boundaries to constrain integrations over.
+"""
 struct SinoGeom3D
     phantom_size::Int
     detector_u::Int
@@ -45,6 +79,19 @@ struct SinoGeom3D
     z2::Int
 end
 
+"""
+    ObjectSpec2D
+
+A parametric dictionary bounding a generic continuous 2D mathematical object prior to projection.
+
+**Fields**:
+- `object::String`: Descriptor matching primitive types (e.g. "gaussian", "rectangle").
+- `C0::Float32`: Overall baseline focal intensity/absorption.
+- `x0::Float32`, `y0::Float32`: Displacement coordinates scaling globally within `[-1.0, 1.0]` bounds.
+- `a::Float32`, `b::Float32`: Asymmetrical axis widths stretching the core geometry.
+- `phi_rot::Float32`: Positional rotation spanning in degrees.
+- `tt::Int`: Sub-iteration threshold for temporal objects (4D).
+"""
 struct ObjectSpec2D
     object::String
     C0::Float32
@@ -65,6 +112,12 @@ ObjectSpec2D(; object::AbstractString="gaussian",
                phi_rot::Float32=0.0f0,
                tt::Int=0) = ObjectSpec2D(String(object), C0, x0, y0, a, b, phi_rot, tt)
 
+"""
+    ObjectSpec3D
+
+A volumetric parametric definition defining geometric primitives in 3D tomographic space prior to rasterization or analytical projection.
+Extends the canonical fields of `ObjectSpec2D` by enforcing orthogonal `z0`, `c` modifiers and triplet Euler angle boundaries (`phi1, phi2, phi3`).
+"""
 struct ObjectSpec3D
     object::String
     C0::Float32
@@ -95,18 +148,33 @@ ObjectSpec3D(; object::AbstractString="ellipsoid",
 
 const _pkg_root = normpath(joinpath(@__DIR__, ".."))
 
+"""
+    default_2d_library_path
+
+Resolves globally the exact installation path of `Phantom2DLibrary.dat` shipped natively via the build compilation script dependency.
+"""
 function default_2d_library_path()
     path = phantom2d_library_path
     isfile(path) || error("2D model library file was not found at $(path)")
     return path
 end
 
+"""
+    default_3d_library_path
+
+Resolves globally the exact installation path of `Phantom3DLibrary.dat` shipped natively via the build compilation script dependency.
+"""
 function default_3d_library_path()
     path = phantom3d_library_path
     isfile(path) || error("3D model library file was not found at $(path)")
     return path
 end
 
+"""
+    find_tomophantom_library
+
+Identifies the actively built execution path of `libtomophantom.so` or equivalents. Throws an explicit error directing `Pkg.build` if unavailable.
+"""
 function find_tomophantom_library()
     if @isdefined(libtomophantom) && libtomophantom !== nothing
         return libtomophantom
@@ -132,6 +200,18 @@ function NativeCore(libpath::AbstractString=find_tomophantom_library())
     )
 end
 
+"""
+    phantom2d
+
+Computes a spatial 2D discrete rendering (matrix slice) from an explicitly identified analytical library model instance.
+
+**Arguments**:
+- `core::NativeCore`: The initialized Native C binding context.
+- `model::LibraryModel`: The model specification ID bounded to `.dat` location.
+- `n::Int`: Expected discrete lattice scale `[N x N]`.
+
+Returns an `Array{Float32, 2}`.
+"""
 function phantom2d(core::NativeCore, model::LibraryModel, n::Int)
     A = zeros(Float32, n, n)
     GC.@preserve A begin
@@ -140,6 +220,11 @@ function phantom2d(core::NativeCore, model::LibraryModel, n::Int)
     return A
 end
 
+"""
+    object2d
+
+Renders natively an unguided `ObjectSpec2D` mapping mathematically onto a discrete Cartesian lattice array `[N x N]`. Emits an `Array{Float32, 2}`.
+"""
 function object2d(core::NativeCore, n::Int, spec::ObjectSpec2D=ObjectSpec2D())
     A = zeros(Float32, n, n)
     GC.@preserve A begin
@@ -150,6 +235,13 @@ function object2d(core::NativeCore, n::Int, spec::ObjectSpec2D=ObjectSpec2D())
     return A
 end
 
+"""
+    sino2d_natural
+
+Executes purely analytical path-integral tomographic forward projection over an identified 2D library model.
+
+Produces native C-ordered representations scaling explicitly to `S[angle, u]`. This avoids interpolation and sub-gridding anomalies tied tightly onto pixel bounds.
+"""
 function sino2d_natural(core::NativeCore, model::LibraryModel, geom::SinoGeom2D; centype::Int=0)
     angles_deg = geom.angles_deg
     ang_tot = length(angles_deg)
@@ -163,6 +255,11 @@ function sino2d_natural(core::NativeCore, model::LibraryModel, geom::SinoGeom2D;
     return S
 end
 
+"""
+    object_sino2d_natural
+
+Calculates analytical sinograms mapped heavily upon individual `ObjectSpec2D` shape primitives mapped canonically into continuous space boundaries. Emits an `Array{Float32, 2}` structured `[angle, u]`.
+"""
 function object_sino2d_natural(core::NativeCore, geom::SinoGeom2D, spec::ObjectSpec2D=ObjectSpec2D(); centype::Int=0)
     angles_deg = geom.angles_deg
     ang_tot = length(angles_deg)
@@ -176,6 +273,11 @@ function object_sino2d_natural(core::NativeCore, geom::SinoGeom2D, spec::ObjectS
     return S
 end
 
+"""
+    phantom3d
+
+Yields fully discretized volumetric arrays from specific library geometries. Result maps perfectly to `A[x, y, z]` dimensions dictated by the grid scalar `n`. Creates an `Array{Float32, 3}`.
+"""
 function phantom3d(core::NativeCore, model::LibraryModel, n::Int)
     A = zeros(Float32, n, n, n)
     GC.@preserve A begin
@@ -186,6 +288,11 @@ function phantom3d(core::NativeCore, model::LibraryModel, n::Int)
     return A
 end
 
+"""
+    object3d
+
+Rasterizes volumetric parametric definitions supplied via `ObjectSpec3D` evaluating scalar integrations down canonical grid boundaries. Emits a solid `Array{Float32, 3}` structured natively as `[x, y, z]`.
+"""
 function object3d(core::NativeCore, n::Int, spec::ObjectSpec3D=ObjectSpec3D())
     A = zeros(Float32, n, n, n)
     GC.@preserve A begin
@@ -200,6 +307,12 @@ function object3d(core::NativeCore, n::Int, spec::ObjectSpec3D=ObjectSpec3D())
     return A
 end
 
+"""
+    sino3d_natural
+
+Performs pure analytical forward projections over 3D volumetric model configurations. The `z1`, `z2` dimensions natively slice constraints onto the vertical planes. 
+Returns dense continuous matrices mapping natively to `S[u, v, angle]` out of the integration step.
+"""
 function sino3d_natural(core::NativeCore, model::LibraryModel, geom::SinoGeom3D)
     angles_deg = geom.angles_deg
     ang_tot = length(angles_deg)
@@ -215,6 +328,11 @@ function sino3d_natural(core::NativeCore, model::LibraryModel, geom::SinoGeom3D)
     return S
 end
 
+"""
+    object_sino3d_natural
+
+Extends analytical sinogram projection over user-defined mathematical primitive bounds defined statically inside `ObjectSpec3D` structs. Returns `S[u, v, angle]`.
+"""
 function object_sino3d_natural(core::NativeCore, geom::SinoGeom3D, spec::ObjectSpec3D=ObjectSpec3D())
     angles_deg = geom.angles_deg
     ang_tot = length(angles_deg)
@@ -234,7 +352,17 @@ function object_sino3d_natural(core::NativeCore, geom::SinoGeom3D, spec::ObjectS
     return S
 end
 
+"""
+    sino2d_u_angle_view
+
+Zero-overhead transpose wrapper mutating canonical 2D sinogram matrices `[angle, u]` perfectly onto `[u, angle]` to seamlessly attach to general reconstruction toolkits (like ASTRA/ODL).
+"""
 sino2d_u_angle_view(S_angle_u::AbstractMatrix{<:Real}) = transpose(S_angle_u)
+"""
+    sino3d_u_angle_v_view
+
+Zero-overhead dimension permutation translating canonical volumetric sinogram arrays bounded `[u, v, angle]` out to standard algorithm frameworks expecting `[u, angle, v]` boundaries.
+"""
 sino3d_u_angle_v_view(S_u_v_angle::Array{Float32,3}) = PermutedDimsArray(S_u_v_angle, (1, 3, 2))
 
 _has_nonzero(A) = any(!iszero, A)

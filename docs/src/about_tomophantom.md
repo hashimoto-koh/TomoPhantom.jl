@@ -2,6 +2,10 @@
 
 The [TomoPhantom](https://github.com/dkazanc/TomoPhantom) core library is an open-source software tool widely utilized in the imaging sciences for generating highly customizable phantom models and performing analytical projections.
 
+`TomoPhantom.jl` is a Julia port built around that upstream core. This repository is developed with explicit respect for the original project and with gratitude to Daniil Kazantsev and all contributors who made the upstream implementation and documentation publicly available.
+
+This repository does not vendor the upstream `TomoPhantom` source tree. Instead, the required native sources and phantom library data are fetched during `Pkg.build("TomoPhantom")`, and the Julia package interfaces with the resulting native library directly rather than through the Python wrapper layer. The design target is direct native API integration from Julia, centered on the upstream C core and avoiding Python-mediated wrapping.
+
 ## Why Ground Truth Matters
 
 When developing, bench-testing, or validating tomographic image reconstruction algorithms, using **ground truth phantoms** is absolutely crucial. A common pitfall in inverse problem research is performing discrete forward projections on a digital object, adding noise, and then running a discrete inverse solver on that identical gridded model. This is known as an *inverse crime*, and it usually leads to falsely optimistic performance metrics. 
@@ -26,3 +30,5 @@ Thanks to the robust parametric definitions of objects (each element having know
 `TomoPhantom.jl` maps functionality strictly for standard 2D parallel/fan geometries and 3D geometries.
 - **2D Operations**: Rely on the `SinoGeom2D` geometry constraints and construct projections onto line detectors evaluated across defined degrees.
 - **3D Operations**: Utilize volumetric primitives like ellipsoids and cylinders via `SinoGeom3D`, projecting them systematically onto 2D planar detectors across arrays of angles.
+
+For practical installation instructions for the Julia port, see [Installation Guide](installation.md).

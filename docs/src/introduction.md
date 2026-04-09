@@ -1,6 +1,8 @@
 # About TomoPhantom.jl
 
-`TomoPhantom.jl` is the Julia implementation and binding layer for the original `TomoPhantom` C library.
+`TomoPhantom.jl` is a Julia port of the original `TomoPhantom` project and serves as a Julia-native binding layer for the upstream C core.
+
+This port exists because the upstream project is valuable, well designed, and broadly useful in tomography research. The Julia implementation is developed with explicit respect for that work and with gratitude to the original authors and maintainers.
 
 ## Purpose and Motivation
 
@@ -10,7 +12,11 @@ While there are many pixel-driven or ray-driven projectors available across ecos
 
 ## Design Philosophy
 
-This repository is kept intentionally minimal to maximize compatibility and reduce footprint. Rather than cloning all of the raw C code and maintaining two divergent bases, `TomoPhantom.jl` uses Julia's powerful package builder. It fetches the necessary C sources and precomputed library `.dat` models from the upstream target only when compiling the package, treating the C logic as a strictly managed dependency.
+This repository is kept intentionally minimal to maximize compatibility and reduce footprint. Rather than cloning and vendoring the entire upstream source tree, `TomoPhantom.jl` uses Julia's package build step to fetch the required upstream C sources and precomputed library `.dat` models only when compiling the package, treating the native core as a pinned build-time dependency.
+
+Another core design choice is to avoid the upstream Python wrapper entirely. `TomoPhantom.jl` does not use `PyCall` or `PythonCall`; instead, Julia loads the native library directly and calls the exported native entry points via `ccall`. In other words, the port is designed around direct native C / CUDA-side integration where applicable, rather than a Python-mediated wrapper layer. The current implementation directly binds the upstream C core.
+
+For installation details, including build requirements and `Pkg.add` / `Pkg.build` usage, see [Installation Guide](installation.md).
 
 ### C-Native Data Layouts
 

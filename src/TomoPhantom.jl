@@ -147,6 +147,16 @@ ObjectSpec3D(; object::AbstractString="ellipsoid",
                tt::Int=0) = ObjectSpec3D(String(object), C0, x0, y0, z0, a, b, c, phi1, phi2, phi3, tt)
 
 const _pkg_root = normpath(joinpath(@__DIR__, ".."))
+const _phantom2d_temporal_frames = Dict(
+    100 => 3,
+    101 => 350,
+    102 => 25,
+)
+const _phantom3d_temporal_frames = Dict(
+    100 => 5,
+    101 => 10,
+    102 => 10,
+)
 
 """
     default_2d_library_path
@@ -210,10 +220,12 @@ Computes a spatial 2D discrete rendering (matrix slice) from an explicitly ident
 - `model::LibraryModel`: The model specification ID bounded to `.dat` location.
 - `n::Int`: Expected discrete lattice scale `[N x N]`.
 
-Returns an `Array{Float32, 2}`.
+Returns an `Array{Float32, 2}` for stationary 2D models and an
+`Array{Float32, 3}` for temporal 2D models.
 """
 function phantom2d(core::NativeCore, model::LibraryModel, n::Int)
-    A = zeros(Float32, n, n)
+    frames = get(_phantom2d_temporal_frames, model.id, nothing)
+    A = isnothing(frames) ? zeros(Float32, n, n) : zeros(Float32, n, n, frames)
     GC.@preserve A begin
         ccall(core.fp_model2d, Cfloat, (Ptr{Cfloat}, Cint, Cint, Cstring), A, Cint(model.id), Cint(n), model.dat_path)
     end
@@ -240,12 +252,14 @@ end
 
 Executes purely analytical path-integral tomographic forward projection over an identified 2D library model.
 
-Produces native C-ordered representations scaling explicitly to `S[angle, u]`. This avoids interpolation and sub-gridding anomalies tied tightly onto pixel bounds.
+Produces native C-ordered representations scaling explicitly to `S[angle, u]`
+for stationary models and `S[angle, u, t]` for temporal models.
 """
 function sino2d_natural(core::NativeCore, model::LibraryModel, geom::SinoGeom2D; centype::Int=0)
     angles_deg = geom.angles_deg
     ang_tot = length(angles_deg)
-    S = zeros(Float32, ang_tot, geom.detector_u)
+    frames = get(_phantom2d_temporal_frames, model.id, nothing)
+    S = isnothing(frames) ? zeros(Float32, ang_tot, geom.detector_u) : zeros(Float32, ang_tot, geom.detector_u, frames)
     GC.@preserve S angles_deg begin
         ccall(core.fp_modelsino2d, Cfloat,
               (Ptr{Cfloat}, Cint, Cint, Cint, Ptr{Cfloat}, Cint, Cint, Cstring),
@@ -276,10 +290,13 @@ end
 """
     phantom3d
 
-Yields fully discretized volumetric arrays from specific library geometries. Result maps perfectly to `A[x, y, z]` dimensions dictated by the grid scalar `n`. Creates an `Array{Float32, 3}`.
+Yields fully discretized volumetric arrays from specific library geometries.
+Returns an `Array{Float32, 3}` for stationary 3D models and an
+`Array{Float32, 4}` for temporal 3D models.
 """
 function phantom3d(core::NativeCore, model::LibraryModel, n::Int)
-    A = zeros(Float32, n, n, n)
+    frames = get(_phantom3d_temporal_frames, model.id, nothing)
+    A = isnothing(frames) ? zeros(Float32, n, n, n) : zeros(Float32, n, n, n, frames)
     GC.@preserve A begin
         ccall(core.fp_model3d, Cfloat,
               (Ptr{Cfloat}, Cint, Clong, Clong, Clong, Clong, Clong, Cstring),
@@ -311,14 +328,16 @@ end
     sino3d_natural
 
 Performs pure analytical forward projections over 3D volumetric model configurations. The `z1`, `z2` dimensions natively slice constraints onto the vertical planes. 
-Returns dense continuous matrices mapping natively to `S[u, v, angle]` out of the integration step.
+Returns dense continuous arrays mapping natively to `S[u, v, angle]` for
+stationary models and `S[u, v, angle, t]` for temporal models.
 """
 function sino3d_natural(core::NativeCore, model::LibraryModel, geom::SinoGeom3D)
     angles_deg = geom.angles_deg
     ang_tot = length(angles_deg)
     sub_v = geom.z2 - geom.z1
     sub_v > 0 || throw(ArgumentError("z2 must be larger than z1"))
-    S = zeros(Float32, geom.detector_u, sub_v, ang_tot)
+    frames = get(_phantom3d_temporal_frames, model.id, nothing)
+    S = isnothing(frames) ? zeros(Float32, geom.detector_u, sub_v, ang_tot) : zeros(Float32, geom.detector_u, sub_v, ang_tot, frames)
     GC.@preserve S angles_deg begin
         ccall(core.fp_modelsino3d, Cfloat,
               (Ptr{Cfloat}, Cint, Clong, Clong, Clong, Clong, Clong, Ptr{Cfloat}, Cint, Cstring),

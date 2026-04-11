@@ -36,7 +36,9 @@ makedocs(
         "API Reference" => [
             "Core" => "api/core.md",
             "Generators" => "api/generators.md",
-            "Projections" => "api/projections.md"
+            "Projections" => "api/projections.md",
+            "Artefacts" => "api/artefacts.md",
+            "Quality Metrics" => "api/qualitymetrics.md"
         ]
     ],
 )

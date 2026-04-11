@@ -9,7 +9,10 @@ The Julia port is developed with explicit respect for the upstream work by Danii
 This package exposes:
 - **2D / 3D Model Phantoms**: Generate standard synthetic test models (such as Shepp-Logan).
 - **2D / 3D Object Phantoms**: Generate shapes using parametric representations like ellipses, Gaussians, rectangles, etc.
+- **2D / 3D Foam Generators**: Generate random foam-like phantoms from many non-overlapping primitive objects.
 - **Analytical Sinograms**: Create accurate 2D and 3D direct analytical projections (sinograms) ideal for mathematical testing and algorithmic validation.
+- **Artefact Synthesis**: Add zingers, stripes, shifts, noise, PVE, and Fresnel propagation effects to simulated data.
+- **Quality Metrics**: Compare images or volumes using RMSE, NRMSE, and SSIM.
 
 ## Repository Policy
 
@@ -22,6 +25,6 @@ Instead, the build step fetches the pinned upstream C sources and phantom librar
 - **[Introduction](introduction.md)**: Learn about TomoPhantom and this Julia port.
 - **[Installation Guide](installation.md)**: Instructions for adding the package and compiling dependencies.
 - **Tutorials**: Get started quickly with practical examples for [2D Phantoms](tutorials/2d-phantom.md), [Models](tutorials/models.md) and [Projections](tutorials/projections.md).
-- **API Reference**: Detailed breakdown of exported modules and functions including [Core Structures](api/core.md), [Generators](api/generators.md), and [Projections](api/projections.md).
+- **API Reference**: Detailed breakdown of exported modules and functions including [Core Structures](api/core.md), [Generators](api/generators.md), [Projections](api/projections.md), [Artefacts](api/artefacts.md), and [Quality Metrics](api/qualitymetrics.md).
 
 Explore the sections via the sidebar to find what you need.

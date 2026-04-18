@@ -1,14 +1,11 @@
 name: Docs
 
-# Auto-deploy is disabled while the repository is private.
-# Uncomment the triggers below when the repository is made public.
 on:
-  workflow_dispatch:
-#  push:
-#    branches:
-#      - master
-#    tags: '*'
-#  pull_request:
+  push:
+    branches:
+      - master
+    tags: '*'
+  pull_request:
 
 jobs:
   build:
@@ -24,7 +21,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake build-essential
       - name: Install package
-        run: julia --startup-file=no --project=docs -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+        run: julia --startup-file=no --project=docs -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate(); Pkg.build("TomoPhantom")'
       - name: Build and deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

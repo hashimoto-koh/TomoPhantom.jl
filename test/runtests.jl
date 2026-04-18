@@ -94,6 +94,19 @@ end
     @test mssim_diff < 1
 end
 
+@testset "flats generation" begin
+    # Create small clean 3D data: [V, Angle, H]
+    data3 = zeros(Float32, 16, 5, 16)
+    data3[4:12, :, 4:12] .= 1.0f0
+
+    flats, raw = synth_flats(data3, 1000; flatsnum=2)
+    @test size(flats) == (16, 2, 16)
+    @test size(raw) == size(data3)
+    @test eltype(flats) == UInt16
+    @test any(>(0), flats)
+    @test any(>(0), raw)
+end
+
 @testset "sino3d_natural cone regression" begin
     core = TomoPhantom.NativeCore()
     model = TomoPhantom.LibraryModel(6, TomoPhantom.default_3d_library_path())

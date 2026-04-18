@@ -11,7 +11,7 @@ export NativeCore, LibraryModel, SinoGeom2D, SinoGeom3D,
        phantom2d, object2d, foam2D, sino2d_natural, object_sino2d_natural,
        phantom3d, object3d, foam3D, sino3d_natural, object_sino3d_natural,
        artefacts_mix, stripes, zingers, noise, datashifts, datashifts_subpixel,
-       pve, fresnel_propagator,
+       pve, fresnel_propagator, synth_flats,
        QualityTools, nrmse, rmse, ssim,
        sino2d_u_angle_view, sino3d_u_angle_v_view,
        demo_step2, selfcheck_step2
@@ -23,6 +23,7 @@ include(joinpath(@__DIR__, "tomophantom", "2d.jl"))
 include(joinpath(@__DIR__, "tomophantom", "3d.jl"))
 include(joinpath(@__DIR__, "tomophantom", "artefacts.jl"))
 include(joinpath(@__DIR__, "tomophantom", "qualitymetrics.jl"))
+include(joinpath(@__DIR__, "tomophantom", "flatsgen.jl"))
 include(joinpath(@__DIR__, "tomophantom", "check.jl"))
 
 end

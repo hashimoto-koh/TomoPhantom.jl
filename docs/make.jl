@@ -31,13 +31,15 @@ makedocs(
         "Tutorials" => [
             "2D Phantom" => "tutorials/2d-phantom.md",
             "Models" => "tutorials/models.md",
-            "Projections" => "tutorials/projections.md"
+            "Projections" => "tutorials/projections.md",
+            "Flat-field Synthesis" => "tutorials/flat-fields.md"
         ],
         "API Reference" => [
             "Core" => "api/core.md",
             "Generators" => "api/generators.md",
             "Projections" => "api/projections.md",
             "Artefacts" => "api/artefacts.md",
+            "Flat-field Synthesis" => "api/flatsgen.md",
             "Quality Metrics" => "api/qualitymetrics.md"
         ]
     ],

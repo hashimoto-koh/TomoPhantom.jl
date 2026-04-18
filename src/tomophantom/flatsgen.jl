@@ -51,7 +51,7 @@ function synth_flats(
     # spherical_yn(n, x) in Python is sphericalbessely(n, x) in SpecialFunctions.jl
     func = [sphericalbessely(1, Float32(x)) for x in bessel_range]
     func .+= abs(minimum(func))
-    
+
     flatfield = zeros(Float32, det_v, det_h)
     for j in 1:det_h
         flatfield[:, j] .= func
@@ -101,8 +101,8 @@ function synth_flats(
 
         # Use the existing noise function from artefacts.jl (Poisson noise)
         # Note: TomoPhantom's Poisson noise logic expects data in [0, 1] and scales it
-        ff_noisy = noise(ff_combined, source_intensity, "Poisson"; seed=rand(rng, Int), prelog=false)
-        
+        ff_noisy = noise(ff_combined, source_intensity, "Poisson"; seed=rng, prelog=false)
+
         # Scaling to UInt16 (0 - 65535)
         max_ff_noisy = maximum(ff_noisy)
         if max_ff_noisy > 0
@@ -116,10 +116,10 @@ function synth_flats(
     for p in 1:proj_no
         # Base flat field for this projection
         ff = copy(flatfield) .+ 0.5f0 .* speckle_norm
-        
+
         # Apply miscalibration
         ff .*= (1.0f0 .- Float32(detectors_miscallibration) .* miscalib_map)
-        
+
         # Scale to source intensity
         # proj_norm is exp(-mu*L)
         transmission = ff .* proj_norm[:, p, :]
@@ -127,9 +127,9 @@ function synth_flats(
         if max_t > 0
             transmission ./= max_t
         end
-        
+
         # Add noise
-        proj_noisy = noise(transmission, source_intensity, "Poisson"; seed=rand(rng, Int), prelog=false)
+        proj_noisy = noise(transmission, source_intensity, "Poisson"; seed=rng, prelog=false)
         proj_data_3d_raw[:, p, :] .= Float32.(proj_noisy)
     end
 
@@ -141,7 +141,7 @@ function _simulate_speckles(rows::Int, cols::Int, size_val::Int, kbar::Real, rng
     # Simple speckle simulation using random phases and FFT
     # This is a common way to generate speckle-like patterns
     phases = exp.(2π * im .* rand(rng, Float32, rows, cols))
-    
+
     # Low-pass filter in Fourier space to control speckle size
     F = fft(phases)
     # Control size by zeroing out high frequencies
@@ -155,7 +155,7 @@ function _simulate_speckles(rows::Int, cols::Int, size_val::Int, kbar::Real, rng
             F[i, j] = 0
         end
     end
-    
+
     speckles = abs2.(ifft(F))
     max_s = maximum(speckles)
     if max_s > 0
@@ -167,7 +167,7 @@ end
 # Internal helper for simple box-blur based Gaussian approximation.
 function _simple_gaussian_blur(data::AbstractMatrix{Float32}, sigma::Int)
     sigma <= 0 && return copy(data)
-    # Use the internal _convolve_same from artefacts.jl if possible, 
+    # Use the internal _convolve_same from artefacts.jl if possible,
     # but that's 1D. We'll use a simple 2D blur.
     rows, cols = size(data)
     out = copy(data)

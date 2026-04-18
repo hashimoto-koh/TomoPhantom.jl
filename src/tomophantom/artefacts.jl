@@ -1,4 +1,5 @@
-_artefact_rng(seed) = seed isa Integer ? MersenneTwister(seed) :
+_artefact_rng(seed) = seed isa AbstractRNG ? seed :
+                      seed isa Integer ? MersenneTwister(abs(seed)) :
                       seed === true ? MersenneTwister(1) :
                       Random.default_rng()
 
@@ -220,7 +221,7 @@ function noise(
     data::AbstractArray{<:Real},
     sigma::Union{Integer,AbstractFloat},
     noisetype::AbstractString;
-    seed::Union{Bool,Integer}=true,
+    seed::Union{Bool,Integer,AbstractRNG}=true,
     prelog::Bool=false,
 )
     rng = _artefact_rng(seed)

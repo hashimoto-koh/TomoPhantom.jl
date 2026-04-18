@@ -45,6 +45,6 @@ makedocs(
 
 deploydocs(
     repo = "github.com/hashimoto-koh/TomoPhantom.jl.git",
-    devbranch = "main",
+    devbranch = "master",
     push_preview = true,
 )

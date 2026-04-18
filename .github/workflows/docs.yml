@@ -20,8 +20,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake build-essential
-      - name: Install package
-        run: julia --startup-file=no --project=docs -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate(); Pkg.build("TomoPhantom")'
+      - name: Build native library
+        run: julia --startup-file=no --project=. -e 'using Pkg; Pkg.build()'
+      - name: Install docs dependencies
+        run: julia --startup-file=no --project=docs -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

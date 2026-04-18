@@ -1,11 +1,14 @@
 name: Docs
 
+# Auto-deploy is disabled while the repository is private.
+# Uncomment the triggers below when the repository is made public.
 on:
-  push:
-    branches:
-      - master
-    tags: '*'
-  pull_request:
+  workflow_dispatch:
+#  push:
+#    branches:
+#      - master
+#    tags: '*'
+#  pull_request:
 
 jobs:
   build:

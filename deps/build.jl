@@ -12,7 +12,7 @@ mkpath(prefix_dir)
 mkpath(upstream_root)
 
 const DEFAULT_UPSTREAM_REPO = "dkazanc/TomoPhantom"
-const DEFAULT_UPSTREAM_REF = "b75287a9706750951f8194902346ad91f7129064"
+const DEFAULT_UPSTREAM_REF = "fe5280f401905504ca043f36e5553a469c5fa1e0"
 
 function require_cmd(cmd)
     path = Sys.which(cmd)
@@ -36,155 +36,6 @@ function fetch_file!(repo, ref, relative_path)
     Downloads.download(raw_url(repo, ref, relative_path), destination)
     return destination
 end
-
-function patch_source!(path, old_snippet, new_snippet; label)
-    source = replace(read(path, String), "\r\n" => "\n")
-    if occursin(new_snippet, source)
-        return false
-    end
-    if !occursin(old_snippet, source)
-        @warn "Skipping local TomoPhantom patch because the expected hunk was not found" file=path label
-        return false
-    end
-    write(path, replace(source, old_snippet => new_snippet))
-    return true
-end
-
-const PATCH_2D_RECTANGLE_OLD = """
-                SS = xwid/CF*C0;
-                
-                if (fabs(CF) <= (float)EPS) {
-                    SS = ywid*C0;
-                    if ((P0 - A2) > (float)EPS) {
-                        SS=0.0f;
-                    }
-                }
-                if (fabs(SF) <= (float)EPS) {
-                    SS = xwid*C0;
-                    if ((P0 - B2) > (float)EPS) {
-                        SS=0.0f;
-                    }
-                }
-                TF = SF/CF;
-"""
-
-const PATCH_2D_RECTANGLE_NEW = """
-                if (fabs(CF) <= 1.0e-6f) {
-                    SS = ywid*C0;
-                    if ((P0 - A2) > (float)EPS) {
-                        SS=0.0f;
-                    }
-                    A[tt*AngTot*P+ j*AngTot+i] += (N/2.0f)*SS;
-                    continue;
-                }
-                if (fabs(SF) <= 1.0e-6f) {
-                    SS = xwid*C0;
-                    if ((P0 - B2) > (float)EPS) {
-                        SS=0.0f;
-                    }
-                    A[tt*AngTot*P+ j*AngTot+i] += (N/2.0f)*SS;
-                    continue;
-                }
-                SS = xwid/CF*C0;
-                TF = SF/CF;
-"""
-
-const PATCH_3D_RECTANGLE_OLD = """
-                                    SS = xwid/CF*C0;
-                                    
-                                    if (fabs(CF) <= (float)EPS) {
-                                        SS = ywid*C0;
-                                        if ((P0 - A2) > (float)EPS) SS=0.0f;
-                                    }
-                                    if (fabs(SF) <= (float)EPS) {
-                                        SS = xwid*C0;
-                                        if ((P0 - B2) > (float)EPS) SS=0.0f;
-                                    }
-                                    
-                                    TF = SF/CF;
-"""
-
-const PATCH_3D_RECTANGLE_NEW = """
-                                    if (fabs(CF) <= 1.0e-6f) {
-                                        SS = ywid*C0;
-                                        if ((P0 - A2) > (float)EPS) SS=0.0f;
-                                        A[index] += (N/2.0f)*SS;
-                                        continue;
-                                    }
-                                    if (fabs(SF) <= 1.0e-6f) {
-                                        SS = xwid*C0;
-                                        if ((P0 - B2) > (float)EPS) SS=0.0f;
-                                        A[index] += (N/2.0f)*SS;
-                                        continue;
-                                    }
-                                    
-                                    SS = xwid/CF*C0;
-                                    TF = SF/CF;
-"""
-
-const PATCH_3D_CONE_DISPATCH_OLD = """
-                                if ((strcmp("gaussian",tmpstr2) == 0) || (strcmp("paraboloid",tmpstr2) == 0) || (strcmp("ellipsoid",tmpstr2) == 0)) {
-"""
-
-const PATCH_3D_CONE_DISPATCH_NEW = """
-                                if ((strcmp("gaussian",tmpstr2) == 0) || (strcmp("paraboloid",tmpstr2) == 0) || (strcmp("ellipsoid",tmpstr2) == 0) || (strcmp("cone",tmpstr2) == 0)) {
-"""
-
-const PATCH_3D_CONE_OBJECT_OLD = """
-                            if (strcmp("gaussian",Object) == 0) {
-                                /* The object is a volumetric gaussian */
-                                alh=alog2*a2;
-                                bth=alog2*b2;
-                                gmh=alog2*c2;
-                                
-                                a_v = 1.0f/(alh*powf((aa[0]),2) + bth*powf((aa[1]),2) + gmh*powf((aa[2]),2));
-                                b_v = aa[0]*alh*(al[0]-xh[0]) + aa[1]*bth*(al[1]-xh[1]) + aa[2]*gmh*(al[2]-xh[2]);
-                                c_v = alh*powf(((al[0]-xh[0])),2) + bth*powf(((al[1]-xh[1])),2) + gmh*powf(((al[2]-xh[2])),2);
-                                
-                                A[index] += multiplier*sqrtf(M_PI*a_v)*expf((pow(b_v,2))*a_v-c_v);
-                            }
-"""
-
-const PATCH_3D_CONE_OBJECT_NEW = """
-                            if (strcmp("cone",Object) == 0) {
-                                /* the object is a cone */
-                                float cone_min, cone_sqrt_a, cone_half_width, cone_sqrt_term, cone_integral;
-                                a_v = powf((aa[0]/a),2) + powf((aa[1]/b),2) + powf((aa[2]/c),2);
-                                b_v = aa[0]*(al[0]-xh[0])*a2 + aa[1]*(al[1]-xh[1])*b2 + aa[2]*(al[2]-xh[2])*c2;
-                                c_v = powf(((al[0]-xh[0])/a),2) + powf(((al[1]-xh[1])/b), 2) + powf(((al[2]-xh[2])/c),2) - 1.0f;
-                                d_v = b_v*b_v - a_v*c_v;
-                                
-                                if(d_v > 0) {
-                                    p1 = -(sqrtf(d_v)+b_v)/a_v;
-                                    p2 = (sqrtf(d_v)-b_v)/a_v;
-                                    cone_min = 1.0f - d_v/a_v;
-                                    if (cone_min < 0.0f) cone_min = 0.0f;
-                                    if (cone_min <= 1.0e-7f) {
-                                        cone_integral = 0.5f*(p2 - p1);
-                                    }
-                                    else {
-                                        cone_sqrt_a = sqrtf(a_v);
-                                        cone_half_width = sqrtf(d_v)/a_v;
-                                        cone_sqrt_term = sqrtf(cone_min);
-                                        cone_integral = (p2 - p1) - cone_half_width -
-                                                        (cone_min/cone_sqrt_a)*asinhf((cone_sqrt_a*cone_half_width)/cone_sqrt_term);
-                                    }
-                                    A[index] += multiplier*cone_integral;
-                                }
-                            }
-                            if (strcmp("gaussian",Object) == 0) {
-                                /* The object is a volumetric gaussian */
-                                alh=alog2*a2;
-                                bth=alog2*b2;
-                                gmh=alog2*c2;
-                                
-                                a_v = 1.0f/(alh*powf((aa[0]),2) + bth*powf((aa[1]),2) + gmh*powf((aa[2]),2));
-                                b_v = aa[0]*alh*(al[0]-xh[0]) + aa[1]*bth*(al[1]-xh[1]) + aa[2]*gmh*(al[2]-xh[2]);
-                                c_v = alh*powf(((al[0]-xh[0])),2) + bth*powf(((al[1]-xh[1])),2) + gmh*powf(((al[2]-xh[2])),2);
-                                
-                                A[index] += multiplier*sqrtf(M_PI*a_v)*expf((pow(b_v,2))*a_v-c_v);
-                            }
-"""
 
 upstream_repo_name = env_or_default("TOMOPHANTOM_UPSTREAM_REPO", DEFAULT_UPSTREAM_REPO)
 upstream_ref_name = env_or_default("TOMOPHANTOM_UPSTREAM_REF", DEFAULT_UPSTREAM_REF)
@@ -214,15 +65,6 @@ core_files = [
 for relative_path in core_files
     fetch_file!(upstream_repo_name, upstream_ref_name, relative_path)
 end
-
-patch_source!(joinpath(upstream_root, "Core", "TomoP2DModelSino_core.c"),
-              PATCH_2D_RECTANGLE_OLD, PATCH_2D_RECTANGLE_NEW; label="2d-rectangle-sinogram")
-patch_source!(joinpath(upstream_root, "Core", "TomoP3DModelSino_core.c"),
-              PATCH_3D_RECTANGLE_OLD, PATCH_3D_RECTANGLE_NEW; label="3d-rectangle-sinogram")
-patch_source!(joinpath(upstream_root, "Core", "TomoP3DModelSino_core.c"),
-              PATCH_3D_CONE_DISPATCH_OLD, PATCH_3D_CONE_DISPATCH_NEW; label="3d-cone-dispatch")
-patch_source!(joinpath(upstream_root, "Core", "TomoP3DModelSino_core.c"),
-              PATCH_3D_CONE_OBJECT_OLD, PATCH_3D_CONE_OBJECT_NEW; label="3d-cone-sinogram")
 
 run(`$cmake -S $upstream_root -B $build_dir -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$prefix_dir -DBUILD_PYTHON_WRAPPER=OFF -DBUILD_MATLAB_WRAPPER=OFF`)
 run(`$cmake --build $build_dir --config Release`)

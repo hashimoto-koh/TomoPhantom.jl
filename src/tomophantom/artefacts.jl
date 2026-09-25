@@ -62,14 +62,35 @@ function _shift_with_zeros(slice::AbstractMatrix{<:Real}, shift_y::Int, shift_x:
     return out
 end
 
-function _bilinear_get(slice::AbstractMatrix{<:Real}, y::Float64, x::Float64)
-    if !(1.0 <= y <= size(slice, 1) && 1.0 <= x <= size(slice, 2))
-        return 0.0f0
+function _reflect_coord(c::Float64, n::Int)
+    n <= 1 && return 1.0
+    while c < 1.0 || c > Float64(n)
+        if c < 1.0
+            c = 2.0 - c
+        elseif c > Float64(n)
+            c = 2.0 * Float64(n) - c
+        end
     end
-    y0 = floor(Int, y)
-    x0 = floor(Int, x)
-    y1 = min(y0 + 1, size(slice, 1))
-    x1 = min(x0 + 1, size(slice, 2))
+    return c
+end
+
+function _bilinear_get(slice::AbstractMatrix{<:Real}, y::Float64, x::Float64; mode::Symbol=:zero)
+    H, W = size(slice)
+    if mode == :reflect
+        y = _reflect_coord(y, H)
+        x = _reflect_coord(x, W)
+    elseif mode == :nearest
+        y = clamp(y, 1.0, Float64(H))
+        x = clamp(x, 1.0, Float64(W))
+    else
+        if !(1.0 <= y <= Float64(H) && 1.0 <= x <= Float64(W))
+            return 0.0f0
+        end
+    end
+    y0 = min(floor(Int, y), H)
+    x0 = min(floor(Int, x), W)
+    y1 = min(y0 + 1, H)
+    x1 = min(x0 + 1, W)
     dy = Float32(y - y0)
     dx = Float32(x - x0)
     v00 = Float32(slice[y0, x0])
@@ -79,10 +100,10 @@ function _bilinear_get(slice::AbstractMatrix{<:Real}, y::Float64, x::Float64)
     return (1f0 - dy) * ((1f0 - dx) * v00 + dx * v01) + dy * ((1f0 - dx) * v10 + dx * v11)
 end
 
-function _translate_subpixel(slice::AbstractMatrix{<:Real}, shift_y::Float64, shift_x::Float64)
+function _translate_subpixel(slice::AbstractMatrix{<:Real}, shift_y::Float64, shift_x::Float64; mode::Symbol=:zero)
     out = zeros(Float32, size(slice))
     for j in axes(slice, 2), i in axes(slice, 1)
-        out[i, j] = _bilinear_get(slice, i - shift_y, j - shift_x)
+        out[i, j] = _bilinear_get(slice, Float64(i) - shift_y, Float64(j) - shift_x; mode=mode)
     end
     return out
 end
@@ -313,6 +334,41 @@ function datashifts_subpixel(data::AbstractArray{<:Real}, maxamplitude::Real)
         end
     end
     return shifted, shifts
+end
+
+"""
+    jitter_projections(data, jitter; rng=Random.default_rng(), mode=:reflect)
+
+Add random 2D directional shifts (jitter) within `[-jitter, jitter]` to each projection in 3D projection data `[V, Angle, H]` (or 1D horizontal shifts for 2D sinograms).
+"""
+function jitter_projections(
+    data::AbstractArray{<:Real},
+    jitter::Real;
+    rng::AbstractRNG=Random.default_rng(),
+    mode::Symbol=:reflect,
+)
+    abs(jitter) == 0 && return copy(Float32.(data))
+    ndims(data) in (2, 3) || throw(ArgumentError("data must be 2D or 3D"))
+    jit = Float64(abs(jitter))
+    if ndims(data) == 2
+        angles_dim, _ = size(data)
+        out = similar(Float32.(data))
+        for a in 1:angles_dim
+            shift_x = rand(rng, Float64) * (2.0 * jit) - jit
+            slice_1d = reshape(view(data, a, :), 1, :)
+            out[a, :] = vec(_translate_subpixel(slice_1d, 0.0, shift_x; mode=mode))
+        end
+        return out
+    else
+        det_v, angles_dim, det_h = size(data)
+        out = zeros(Float32, det_v, angles_dim, det_h)
+        for a in 1:angles_dim
+            shift_x = rand(rng, Float64) * (2.0 * jit) - jit
+            shift_y = rand(rng, Float64) * (2.0 * jit) - jit
+            out[:, a, :] = _translate_subpixel(view(data, :, a, :), shift_y, shift_x; mode=mode)
+        end
+        return out
+    end
 end
 
 """

@@ -99,12 +99,25 @@ end
     data3 = zeros(Float32, 16, 5, 16)
     data3[4:12, :, 4:12] .= 1.0f0
 
-    flats, raw = synth_flats(data3, 1000; flatsnum=2)
-    @test size(flats) == (16, 2, 16)
+    raw, flats, speckles = synth_flats(data3, 1000; flatsnum=2)
     @test size(raw) == size(data3)
+    @test size(flats) == (16, 2, 16)
+    @test size(speckles) == (16, 16, 3)
+    @test eltype(raw) == UInt16
     @test eltype(flats) == UInt16
     @test any(>(0), flats)
     @test any(>(0), raw)
+
+    # Test jitter_projections in synth_flats
+    raw_jit, flats_jit, _ = synth_flats(data3, 1000; flatsnum=2, jitter_projections=1.5)
+    @test size(raw_jit) == size(data3)
+    @test eltype(raw_jit) == UInt16
+
+    # Test standalone jitter_projections on 2D sinogram and 3D projection data
+    jit2d = jitter_projections(data3[1, :, :], 1.0)
+    @test size(jit2d) == (5, 16)
+    jit3d = jitter_projections(data3, 1.0)
+    @test size(jit3d) == size(data3)
 end
 
 @testset "sino3d_natural cone regression" begin

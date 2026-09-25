@@ -19,10 +19,11 @@ This is a Julia port of the upstream `flatsgen.py` implementation.
 - `specklesize::Int=2`: Size of the speckle patterns.
 - `kbar::Real=2.0`: Average intensity of the speckles.
 - `sigmasmooth::Int=3`: Smoothing factor for miscalibration maps.
+- `jitter_projections::Real=0.0`: Random directional jitter amplitude (in pixel units) applied to projections.
 - `flatsnum::Int=20`: Number of flat field images to generate.
 - `rng::AbstractRNG=Random.default_rng()`: Random number generator.
 
-Returns `(flats_3d, proj_data_3d_raw)` where `flats_3d` is `[V, flatsnum, H]` in `UInt16`.
+Returns `(proj_data_3d_raw, flats_3d, blurred_speckles_map)` where `proj_data_3d_raw` and `flats_3d` are `UInt16`.
 """
 function synth_flats(
     proj_data_3d_clean::AbstractArray{<:Real, 3},
@@ -33,6 +34,7 @@ function synth_flats(
     specklesize::Int=2,
     kbar::Real=2.0,
     sigmasmooth::Int=3,
+    jitter_projections::Real=0.0,
     flatsnum::Int=20,
     rng::AbstractRNG=Random.default_rng()
 )
@@ -40,15 +42,14 @@ function synth_flats(
 
     # Output containers
     flats_3d = zeros(UInt16, det_v, flatsnum, det_h)
-    proj_data_3d_raw = zeros(Float32, det_v, proj_no, det_h)
+    proj_data_3d_raw_float = zeros(Float32, det_v, proj_no, det_h)
 
-    # Normalize input data
+    # Normalize input projection data
     max_clean = maximum(proj_data_3d_clean)
-    proj_norm = max_clean > 0 ? Float32.(proj_data_3d_clean ./ max_clean) : Float32.(proj_data_3d_clean)
+    proj_clean_norm = max_clean > 0 ? Float32.(proj_data_3d_clean ./ max_clean) : Float32.(proj_data_3d_clean)
 
     # --- SOURCE PROFILE (Bessel background) ---
     bessel_range = range(arguments_Bessel[1], arguments_Bessel[2], length=det_v)
-    # spherical_yn(n, x) in Python is sphericalbessely(n, x) in SpecialFunctions.jl
     func = [sphericalbessely(1, Float32(x)) for x in bessel_range]
     func .+= abs(minimum(func))
 
@@ -56,7 +57,6 @@ function synth_flats(
     for j in 1:det_h
         flatfield[:, j] .= func
     end
-    # Flip and add as per upstream (creates a symmetric profile)
     func_flip = reverse(func)
     for j in 1:det_h
         flatfield[:, j] .+= func_flip
@@ -69,71 +69,96 @@ function synth_flats(
         ones(Float32, det_v, det_h)
     end
 
-    # Model miscalibrated detectors
-    miscalib_map = zeros(Float32, det_v, det_h)
-    if detectors_miscallibration > 0
-        for _ in 1:variations_number
+    # --- MODEL MISCALIBRATED DETECTORS ---
+    blurred_speckles_map = zeros(Float32, det_v, det_h, variations_number)
+    if detectors_miscallibration > 0 && variations_number > 0
+        for j in 1:variations_number
             v_speckles = _simulate_speckles(det_v, det_h, 10, 0.03, rng)
-            # Simple Gaussian blur approximation for sigmasmooth
             v_blurred = _simple_gaussian_blur(v_speckles, sigmasmooth)
-            # Thresholding
             max_v = maximum(v_blurred)
-            v_blurred[v_blurred .< 0.6 * max_v] .= 0
-            miscalib_map .+= v_blurred
+            if max_v > 0
+                v_blurred[v_blurred .< 0.6f0 * max_v] .= 0.0f0
+            end
+            blurred_speckles_map[:, :, j] .= v_blurred
         end
-        max_m = maximum(miscalib_map)
+        max_m = maximum(blurred_speckles_map)
         if max_m > 0
-            miscalib_map ./= max_m
+            blurred_speckles_map ./= max_m
         end
+    end
+
+    # Angular response functions for detector miscalibration (upstream)
+    sinusoidal_response = sin.(range(0.0f0, 1.5f0 * Float32(π), length=proj_no)) .+ rand(rng, Float32, proj_no) .* 0.1f0
+    max_sin = maximum(sinusoidal_response)
+    if max_sin > 0
+        sinusoidal_response ./= max_sin
+    end
+
+    exponential_response = exp.(range(0.0f0, Float32(π), length=proj_no)) .+ rand(rng, Float32, proj_no) .* 0.1f0
+    max_exp = maximum(exponential_response)
+    if max_exp > 0
+        exponential_response ./= max_exp
     end
 
     # --- FLAT-FIELD GENERATION ---
     max_speckle = maximum(speckle_background)
     speckle_norm = max_speckle > 0 ? speckle_background ./ max_speckle : speckle_background
 
+    flatfield_combined = copy(flatfield) .+ 0.5f0 .* speckle_norm
+    max_ff = maximum(flatfield_combined)
+    if max_ff > 0
+        flatfield_combined ./= max_ff
+    end
+
+    flatfield_poisson_last = similar(flatfield_combined)
+
     for i in 1:flatsnum
-        # Combine bessel background and speckles
-        ff_combined = copy(flatfield) .+ 0.5f0 .* speckle_norm
-        max_ff = maximum(ff_combined)
-        if max_ff > 0
-            ff_combined ./= max_ff
-        end
-
-        # Use the existing noise function from artefacts.jl (Poisson noise)
-        # Note: TomoPhantom's Poisson noise logic expects data in [0, 1] and scales it
-        ff_noisy = noise(ff_combined, source_intensity, "Poisson"; seed=rng, prelog=false)
-
-        # Scaling to UInt16 (0 - 65535)
+        ff_counts = flatfield_combined .* Float32(source_intensity)
+        ff_noisy = _add_poisson_noise(ff_counts, rng)
         max_ff_noisy = maximum(ff_noisy)
         if max_ff_noisy > 0
-            flats_3d[:, i, :] .= UInt16.(clamp.(round.( (ff_noisy ./ max_ff_noisy) .* 65535), 0, 65535))
+            flatfield_poisson_last = ff_noisy ./ max_ff_noisy
+            flats_3d[:, i, :] .= UInt16.(clamp.(round.(flatfield_poisson_last .* 65535.0f0), 0, 65535))
         end
     end
 
     # --- RAW PROJECTION DATA GENERATION ---
-    # Apply flatfield and noise to the normalized clean projections
-    # This emulates I = I0 * exp(-mu*L)
+    # Emulates Beer-Lambert transmission: I = exp(-mu * L) * I0 + miscalibration_offset
     for p in 1:proj_no
-        # Base flat field for this projection
-        ff = copy(flatfield) .+ 0.5f0 .* speckle_norm
+        proj_exp = exp.(-proj_clean_norm[:, p, :]) .* Float32(source_intensity) .* flatfield_poisson_last
 
-        # Apply miscalibration
-        ff .*= (1.0f0 .- Float32(detectors_miscallibration) .* miscalib_map)
-
-        # Scale to source intensity
-        # proj_norm is exp(-mu*L)
-        transmission = ff .* proj_norm[:, p, :]
-        max_t = maximum(transmission)
-        if max_t > 0
-            transmission ./= max_t
+        for j in 1:variations_number
+            offset_factor = if j == 1
+                1.0f0
+            elseif j == 2
+                sinusoidal_response[p]
+            elseif j == 3
+                exponential_response[p]
+            else
+                1.0f0
+            end
+            proj_exp .+= view(blurred_speckles_map, :, :, j) .* (Float32(detectors_miscallibration) * Float32(source_intensity) * offset_factor)
         end
 
-        # Add noise
-        proj_noisy = noise(transmission, source_intensity, "Poisson"; seed=rng, prelog=false)
-        proj_data_3d_raw[:, p, :] .= Float32.(proj_noisy)
+        proj_noisy = _add_poisson_noise(proj_exp, rng)
+
+        if abs(jitter_projections) > 0.0
+            jit = Float64(abs(jitter_projections))
+            horiz_shift = rand(rng, Float64) * (2.0 * jit) - jit
+            vert_shift = rand(rng, Float64) * (2.0 * jit) - jit
+            proj_noisy = _translate_subpixel(proj_noisy, vert_shift, horiz_shift; mode=:reflect)
+        end
+
+        proj_data_3d_raw_float[:, p, :] .= proj_noisy
     end
 
-    return flats_3d, proj_data_3d_raw
+    max_raw = maximum(proj_data_3d_raw_float)
+    proj_data_3d_raw = zeros(UInt16, det_v, proj_no, det_h)
+    if max_raw > 0
+        proj_data_3d_raw .= UInt16.(clamp.(round.((proj_data_3d_raw_float ./ max_raw) .* 65535.0f0), 0, 65535))
+    end
+
+    return (proj_data_3d_raw, flats_3d, blurred_speckles_map)
 end
 
 # Internal helper to simulate speckle texture.
@@ -186,6 +211,19 @@ function _simple_gaussian_blur(data::AbstractMatrix{Float32}, sigma::Int)
             end
             out[i, j] = acc / count
         end
+    end
+    return out
+end
+
+# Internal helper to add Poisson noise with electronic noise directly without logarithm transform
+function _add_poisson_noise(expected_counts::AbstractMatrix{<:Real}, rng::AbstractRNG)
+    sig = sqrt(11.0f0)
+    rows, cols = size(expected_counts)
+    out = zeros(Float32, rows, cols)
+    for j in 1:cols, i in 1:rows
+        λ = max(0.0, Float64(expected_counts[i, j]))
+        noise_count = Float32(_poisson_sample(rng, λ) + sig * randn(rng))
+        out[i, j] = max(0.0f0, noise_count)
     end
     return out
 end

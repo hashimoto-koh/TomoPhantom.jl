@@ -11,12 +11,14 @@ This repository exists because the original `TomoPhantom` project is valuable, c
 
 `TomoPhantom.jl` provides a Julia-first interface to the native `TomoPhantom` core for:
 
-- 2D analytical phantoms from the upstream model libraries
-- 3D analytical phantoms from the upstream model libraries
-- 2D object-based phantom generation
-- 3D object-based phantom generation
-- 2D analytical sinograms
-- 3D analytical projection data
+- 2D analytical phantoms from the upstream model libraries (including temporal 2D+time models)
+- 3D analytical phantoms from the upstream model libraries (including temporal 4D CT models)
+- 2D and 3D object-based phantom generation from analytical geometric primitives
+- 2D and 3D random cellular foam microstructure generation (`foam2D`, `foam3D`)
+- 2D analytical sinograms and 3D analytical parallel-beam projection data
+- Realistic acquisition artefact simulation (Poisson/Gaussian noise, detector stripes/rings, zingers, shifts, jitter, PVE, Fresnel propagation)
+- Physical flat-field synthesis (`synth_flats`) with non-uniform beam profiles and detector miscalibration
+- Quantitative image quality benchmarking metrics (`rmse`, `nrmse`, `ssim`)
 
 The port is intentionally native and Julia-centric:
 

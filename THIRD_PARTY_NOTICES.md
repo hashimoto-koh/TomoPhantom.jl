@@ -8,6 +8,7 @@ This repository, `TomoPhantom.jl`, is distributed under the Apache License 2.0. 
 
 - upstream repository: <https://github.com/dkazanc/TomoPhantom>
 - upstream documentation: <https://dkazanc.github.io/TomoPhantom/>
+- upstream copyright: Copyright (c) 2017, The University of Manchester
 - upstream license: Apache License 2.0
 
 The maintainers of this repository gratefully acknowledge the work of Daniil Kazantsev and all contributors to the original `TomoPhantom` project.

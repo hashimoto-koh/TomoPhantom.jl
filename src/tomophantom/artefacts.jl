@@ -113,7 +113,7 @@ function zingers(data::AbstractArray{<:Real}, percentage::Real, modulus::Integer
     modulus > 0 || throw(ArgumentError("Modulus integer must be positive"))
     out = Float32.(data)
     total = length(out)
-    num_values = Int(total * (Float32(percentage) / 100f0))
+    num_values = round(Int, total * (Float32(percentage) / 100f0))
     inds = CartesianIndices(out)
     for x in 1:num_values
         idx = inds[rand(1:length(inds))]

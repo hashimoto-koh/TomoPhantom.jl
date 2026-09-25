@@ -8,7 +8,7 @@ using Literate
 literate_dir = joinpath(@__DIR__, "literate")
 tutorials_dir = joinpath(@__DIR__, "src", "tutorials")
 
-for file in ["2d-phantom.jl", "models.jl", "projections.jl"]
+for file in ["2d-phantom.jl", "models.jl", "projections.jl", "flat-fields.jl"]
     script_path = joinpath(literate_dir, file)
     if isfile(script_path)
         Literate.markdown(script_path, tutorials_dir; documenter=true)

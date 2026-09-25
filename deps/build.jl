@@ -12,7 +12,7 @@ mkpath(prefix_dir)
 mkpath(upstream_root)
 
 const DEFAULT_UPSTREAM_REPO = "dkazanc/TomoPhantom"
-const DEFAULT_UPSTREAM_REF = "fe5280f401905504ca043f36e5553a469c5fa1e0"
+const DEFAULT_UPSTREAM_REF = "fe04194db46b60669e4aaed23cd6202341c453ce"
 
 function require_cmd(cmd)
     path = Sys.which(cmd)

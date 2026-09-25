@@ -11,3 +11,9 @@ docs/src/tutorials/
 
 # Default Julia ignores
 /Manifest.toml
+
+# other
+/AGENTS.md
+/tmp/
+/.vscode/
+/repro/

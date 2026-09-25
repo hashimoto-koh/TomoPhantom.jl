@@ -100,6 +100,15 @@ Full documentation is available here:
 
 The documentation covers installation, examples, API references, and background notes on the Julia port.
 
+## Demos
+
+Interactive Jupyter notebooks are provided in the [`demos/`](demos/) directory to explore workflows and visualize phantoms and projections using [CairoMakie.jl](https://github.com/MakieOrg/Makie.jl):
+
+- **[`demo_2d.ipynb`](demos/demo_2d.ipynb)**: Complete 2D workflow covering all 15 stationary benchmark models, bespoke geometric objects (`object2d`), random cellular foam (`foam2D`), exact analytical sinograms (`sino2d_natural`), zero-cost transpose views (`sino2d_u_angle_view`), realistic acquisition artefacts (`artefacts_mix`), and quantitative benchmarking metrics (`rmse`, `ssim`).
+- **[`demo_3d.ipynb`](demos/demo_3d.ipynb)**: Comprehensive 3D workflow including volumetric model rendering (`phantom3d`), orthogonal slice views (Axial, Coronal, Sagittal), 3D geometric primitives (`object3d`), porous 3D foam structures (`foam3D`), analytical 3D parallel-beam projections/radiographs (`sino3d_natural`), depth slice galleries, and 3D acquisition artefacts.
+- **[`demo_temporal_4d.ipynb`](demos/demo_temporal_4d.ipynb)**: Time-evolving (temporal / dynamic) simulations including 2D+time phantoms and sinograms (Models 100, 101, 102) and 3D+time (4D CT) volumetric phantoms, illustrating physiological motion and dynamic processes across discrete time frames.
+- **[`demo_flats_and_normalization.ipynb`](demos/demo_flats_and_normalization.ipynb)**: Physical flat-field synthesis (`synth_flats`) emulating non-uniform X-ray beam profiles, scintillator dust, detector pixel miscalibration (stripe/ring artifacts), Poisson photon noise, and mechanical jitter, accompanied by standard Beer-Lambert normalization preprocessing.
+
 ## License
 
 This repository is distributed under the Apache License 2.0. For details, see [LICENSE](LICENSE).

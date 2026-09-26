@@ -17,3 +17,4 @@ docs/src/tutorials/
 /tmp/
 /.vscode/
 /repro/
+.ipynb_checkpoints/

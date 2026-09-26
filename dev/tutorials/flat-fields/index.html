@@ -1,293 +1,100 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Flat-field Synthesis · TomoPhantom.jl</title><meta name="title" content="Flat-field Synthesis · TomoPhantom.jl"/><meta property="og:title" content="Flat-field Synthesis · TomoPhantom.jl"/><meta property="twitter:title" content="Flat-field Synthesis · TomoPhantom.jl"/><meta name="description" content="Documentation for TomoPhantom.jl."/><meta property="og:description" content="Documentation for TomoPhantom.jl."/><meta property="twitter:description" content="Documentation for TomoPhantom.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">TomoPhantom.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Introduction</span><ul><li><a class="tocitem" href="../../introduction/">About TomoPhantom.jl</a></li><li><a class="tocitem" href="../../about_tomophantom/">About TomoPhantom</a></li></ul></li><li><a class="tocitem" href="../../installation/">Installation Guide</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../2d-phantom/">2D Phantom</a></li><li><a class="tocitem" href="../models/">Models</a></li><li><a class="tocitem" href="../projections/">Projections</a></li><li class="is-active"><a class="tocitem" href>Flat-field Synthesis</a><ul class="internal"><li><a class="tocitem" href="#1.-Generating-Clean-3D-Projection-Data"><span>1. Generating Clean 3D Projection Data</span></a></li><li><a class="tocitem" href="#2.-Synthesizing-Flat-Fields-and-Raw-Transmission-Data-(synth_flats)"><span>2. Synthesizing Flat-Fields and Raw Transmission Data (<code>synth_flats</code>)</span></a></li><li><a class="tocitem" href="#3.-Flat-Field-Normalization-and-Log-Correction-(Beer-Lambert-Law)"><span>3. Flat-Field Normalization and Log-Correction (Beer-Lambert Law)</span></a></li></ul></li></ul></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../../api/core/">Core</a></li><li><a class="tocitem" href="../../api/generators/">Generators</a></li><li><a class="tocitem" href="../../api/projections/">Projections</a></li><li><a class="tocitem" href="../../api/artefacts/">Artefacts</a></li><li><a class="tocitem" href="../../api/flatsgen/">Flat-field Synthesis</a></li><li><a class="tocitem" href="../../api/qualitymetrics/">Quality Metrics</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Flat-field Synthesis</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Flat-field Synthesis</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/hashimoto-koh/TomoPhantom.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/hashimoto-koh/TomoPhantom.jl/blob/master/docs/literate/flat-fields.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Flat-field-Synthesis"><a class="docs-heading-anchor" href="#Flat-field-Synthesis">Flat-field Synthesis</a><a id="Flat-field-Synthesis-1"></a><a class="docs-heading-anchor-permalink" href="#Flat-field-Synthesis" title="Permalink"></a></h1><p>This tutorial demonstrates how to generate synthetic flat-field (<span>$I_0$</span>) images and raw transmission data (<span>$I$</span>) using <code>TomoPhantom.jl</code>. Flat-field synthesis is useful for simulating realistic tomographic datasets where non-uniform source beam profiles, detector dust/scintillator defects, pixel sensitivity variations (causing stripe artifacts), and Poisson photon noise are present.</p><pre><code class="language-julia hljs">using TomoPhantom
-using Random
-using Statistics</code></pre><h2 id="1.-Generating-Clean-3D-Projection-Data"><a class="docs-heading-anchor" href="#1.-Generating-Clean-3D-Projection-Data">1. Generating Clean 3D Projection Data</a><a id="1.-Generating-Clean-3D-Projection-Data-1"></a><a class="docs-heading-anchor-permalink" href="#1.-Generating-Clean-3D-Projection-Data" title="Permalink"></a></h2><p>First, we generate clean analytical 3D projection data using standard models (e.g. Model 13: 3D Shepp-Logan).</p><pre><code class="language-julia hljs">core = NativeCore()
-model = LibraryModel(13, default_3d_library_path())
-geom = SinoGeom3D(64, 64, 64, collect(Float32, range(0.0f0, 179.0f0; length=90)), 0, 64)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">SinoGeom3D(64, 64, 64, Float32[0.0, 2.011236, 4.022472, 6.033708, 8.044944, 10.05618, 12.067416, 14.078651, 16.089888, 18.101124  …  160.89888, 162.91011, 164.92134, 166.93259, 168.94382, 170.95506, 172.9663, 174.97752, 176.98877, 179.0], 0, 64)</code></pre><p><code>sino3d_natural</code> evaluates analytical projections, returning <code>[Horiz_det, Vert_det, Angle]</code>.</p><pre><code class="language-julia hljs">sino_clean = sino3d_natural(core, model, geom)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">64×64×90 Array{Float32, 3}:
-[:, :, 1] =
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- ⋮                        ⋮              ⋱                 ⋮              
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Flat-field Synthesis · TomoPhantom.jl</title><meta name="title" content="Flat-field Synthesis · TomoPhantom.jl"/><meta property="og:title" content="Flat-field Synthesis · TomoPhantom.jl"/><meta property="twitter:title" content="Flat-field Synthesis · TomoPhantom.jl"/><meta name="description" content="Documentation for TomoPhantom.jl."/><meta property="og:description" content="Documentation for TomoPhantom.jl."/><meta property="twitter:description" content="Documentation for TomoPhantom.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">TomoPhantom.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Introduction</span><ul><li><a class="tocitem" href="../../introduction/">About TomoPhantom.jl</a></li><li><a class="tocitem" href="../../about_tomophantom/">About TomoPhantom</a></li></ul></li><li><a class="tocitem" href="../../installation/">Installation Guide</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../2d-phantom/">2D Phantoms &amp; Sinograms</a></li><li><a class="tocitem" href="../3d-phantom/">3D Phantoms &amp; Projections</a></li><li class="is-active"><a class="tocitem" href>Flat-field Synthesis</a><ul class="internal"><li><a class="tocitem" href="#Imaging-Physics-and-Flat-Field-Correction-Background"><span>Imaging Physics and Flat-Field Correction Background</span></a></li><li><a class="tocitem" href="#Key-Topics-Covered"><span>Key Topics Covered</span></a></li><li><a class="tocitem" href="#Prerequisites"><span>Prerequisites</span></a></li><li><a class="tocitem" href="#0.-Package-Loading-and-Environment-Setup"><span>0. Package Loading and Environment Setup</span></a></li><li><a class="tocitem" href="#1.-Generating-Ideal-Clean-3D-Projection-Data"><span>1. Generating Ideal Clean 3D Projection Data</span></a></li><li><a class="tocitem" href="#2.-Synthesizing-Flat-Fields-and-Raw-Transmission-Data-(synth_flats)"><span>2. Synthesizing Flat-Fields and Raw Transmission Data (<code>synth_flats</code>)</span></a></li><li><a class="tocitem" href="#3.-Flat-Field-Normalization-and-Logarithmic-Conversion"><span>3. Flat-Field Normalization and Logarithmic Conversion</span></a></li><li><a class="tocitem" href="#4.-Visualizing-Preprocessing-Results"><span>4. Visualizing Preprocessing Results</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li></ul></li><li><a class="tocitem" href="../temporal-4d/">Temporal (4D) Phantoms</a></li></ul></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../../api/core/">Core</a></li><li><a class="tocitem" href="../../api/generators/">Generators</a></li><li><a class="tocitem" href="../../api/projections/">Projections</a></li><li><a class="tocitem" href="../../api/artefacts/">Artefacts</a></li><li><a class="tocitem" href="../../api/flatsgen/">Flat-field Synthesis</a></li><li><a class="tocitem" href="../../api/qualitymetrics/">Quality Metrics</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Flat-field Synthesis</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Flat-field Synthesis</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/hashimoto-koh/TomoPhantom.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/hashimoto-koh/TomoPhantom.jl/blob/master/docs/literate/flat-fields.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="TomoPhantom.jl:-Flat-Field-Synthesis-and-CT-Normalization-Preprocessing"><a class="docs-heading-anchor" href="#TomoPhantom.jl:-Flat-Field-Synthesis-and-CT-Normalization-Preprocessing">TomoPhantom.jl: Flat-Field Synthesis and CT Normalization Preprocessing</a><a id="TomoPhantom.jl:-Flat-Field-Synthesis-and-CT-Normalization-Preprocessing-1"></a><a class="docs-heading-anchor-permalink" href="#TomoPhantom.jl:-Flat-Field-Synthesis-and-CT-Normalization-Preprocessing" title="Permalink"></a></h1><p>This tutorial demonstrates how to use the <a href="file:///home/jov/git/prj/TomoPhantom.jl/src/tomophantom/flatsgen.jl"><code>synth_flats</code></a> module in <strong><code>TomoPhantom.jl</code></strong> to simulate real-world physical CT imaging effects (synchrotron radiation or laboratory X-ray CT) and perform standard preprocessing (<strong>Flat-Field Correction / Normalization</strong>).</p><h2 id="Imaging-Physics-and-Flat-Field-Correction-Background"><a class="docs-heading-anchor" href="#Imaging-Physics-and-Flat-Field-Correction-Background">Imaging Physics and Flat-Field Correction Background</a><a id="Imaging-Physics-and-Flat-Field-Correction-Background-1"></a><a class="docs-heading-anchor-permalink" href="#Imaging-Physics-and-Flat-Field-Correction-Background" title="Permalink"></a></h2><p>In real X-ray CT acquisition systems, illumination is not perfectly uniform:</p><ol><li><strong>Beam Profile</strong>: Spatial intensity gradients caused by X-ray source geometry and optical elements (e.g. Bessel profile background with peripheral roll-off).</li><li><strong>Speckle &amp; Scintillator Imperfections</strong>: Microscopic dust, grain boundaries, and scintillator defects cause high-frequency intensity variations.</li><li><strong>Detector Miscalibration</strong>: Variations in pixel-to-pixel gains and sensitivities produce stripe artifacts in sinograms and ring artifacts in reconstructed slices.</li><li><strong>Photon Statistics &amp; Electronic Noise</strong>: Poisson counting fluctuations and Gaussian readout noise.</li><li><strong>Mechanical Wobble / Jitter</strong>: Minor subpixel rotation axis wobble during gantry rotation.</li></ol><p>To correct for these imperfections, multiple flat-field (bright-field / <span>$I_0$</span>) images are collected without the specimen. Measured raw transmission counts <span>$I_{\text{raw}}$</span> (Pre-log data) are then normalized using the Beer-Lambert law to retrieve linear attenuation line integrals (Post-log data):</p><p class="math-container">\[\text{Normalized Sinogram} = -\ln\left(\frac{I_{\text{raw}}}{\bar{I}_{\text{flat}}}\right) = \int \mu(x, y, z) \, ds\]</p><h2 id="Key-Topics-Covered"><a class="docs-heading-anchor" href="#Key-Topics-Covered">Key Topics Covered</a><a id="Key-Topics-Covered-1"></a><a class="docs-heading-anchor-permalink" href="#Key-Topics-Covered" title="Permalink"></a></h2><ol><li>Generating ideal 3D ground-truth projection data</li><li><strong>Synthesizing realistic flat-field images and raw transmission radiographs with <code>synth_flats</code></strong></li><li><strong>Visualizing beam profiles, flat fields, and detector defect maps with Makie</strong></li><li><strong>Implementing flat-field correction and Beer-Lambert logarithmic conversion</strong></li><li><strong>Comparative evaluation: Uncorrected raw data vs. Normalized data vs. Clean ground truth</strong></li></ol><h2 id="Prerequisites"><a class="docs-heading-anchor" href="#Prerequisites">Prerequisites</a><a id="Prerequisites-1"></a><a class="docs-heading-anchor-permalink" href="#Prerequisites" title="Permalink"></a></h2><p>This tutorial uses <strong>Makie</strong> (recommended backend: <strong>CairoMakie</strong>) for visualization. If <code>CairoMakie</code> is not installed in your environment, add it by running <code>using Pkg; Pkg.add(&quot;CairoMakie&quot;)</code>.</p><h2 id="0.-Package-Loading-and-Environment-Setup"><a class="docs-heading-anchor" href="#0.-Package-Loading-and-Environment-Setup">0. Package Loading and Environment Setup</a><a id="0.-Package-Loading-and-Environment-Setup-1"></a><a class="docs-heading-anchor-permalink" href="#0.-Package-Loading-and-Environment-Setup" title="Permalink"></a></h2><pre><code class="language-julia hljs">using TomoPhantom
+using CairoMakie
+using Statistics</code></pre><h2 id="1.-Generating-Ideal-Clean-3D-Projection-Data"><a class="docs-heading-anchor" href="#1.-Generating-Ideal-Clean-3D-Projection-Data">1. Generating Ideal Clean 3D Projection Data</a><a id="1.-Generating-Ideal-Clean-3D-Projection-Data-1"></a><a class="docs-heading-anchor-permalink" href="#1.-Generating-Ideal-Clean-3D-Projection-Data" title="Permalink"></a></h2><p>We first generate clean reference 3D projection data using <code>sino3d_natural</code> with <strong>Model 13 (3D Shepp-Logan)</strong>.</p><blockquote><p><strong>Note</strong>: The <code>synth_flats</code> function expects input projection data formatted as <strong><code>[Vert_det, Angle, Horiz_det]</code></strong>. Since <code>sino3d_natural</code> outputs <code>[Horiz_det, Vert_det, Angle]</code>, we permute dimensions using <code>permutedims</code>.</p></blockquote><pre><code class="language-julia hljs">core = NativeCore()
+lib3d_path = default_3d_library_path()
+model_shepp3d = LibraryModel(13, lib3d_path)
 
-[:, :, 2] =
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- ⋮                        ⋮              ⋱                 ⋮              
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+# Geometry setup: 64 x 64 detector, 90 projection angles
+N = 64
+det_u = 64
+det_v = 64
+angles = collect(Float32, range(0.0f0, 179.0f0; length = 90))
+geom3d = SinoGeom3D(N, det_u, det_v, angles, 0, det_v)
 
-[:, :, 3] =
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- ⋮                        ⋮              ⋱                 ⋮              
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
+# Compute analytical 3D projection data: [u, v, angle]
+sino3d_clean = sino3d_natural(core, model_shepp3d, geom3d)
 
-;;; … 
+# Permute axes to [Vert_det, Angle, Horiz_det] for synth_flats
+proj_clean = permutedims(sino3d_clean, (2, 3, 1))
 
-[:, :, 88] =
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- ⋮                        ⋮              ⋱                 ⋮              
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
-
-[:, :, 89] =
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- ⋮                        ⋮              ⋱                 ⋮              
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
-
-[:, :, 90] =
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- ⋮                        ⋮              ⋱                 ⋮              
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  …  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0     0.0  0.0  0.0  0.0  0.0  0.0  0.0</code></pre><p><code>synth_flats</code> expects projection data in <code>[Vert_det, Angle, Horiz_det]</code> order.</p><pre><code class="language-julia hljs">proj_clean = permutedims(sino_clean, (2, 3, 1))
-println(&quot;Clean projection size [V, Angle, H]: &quot;, size(proj_clean))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Clean projection size [V, Angle, H]: (64, 90, 64)</code></pre><h2 id="2.-Synthesizing-Flat-Fields-and-Raw-Transmission-Data-(synth_flats)"><a class="docs-heading-anchor" href="#2.-Synthesizing-Flat-Fields-and-Raw-Transmission-Data-(synth_flats)">2. Synthesizing Flat-Fields and Raw Transmission Data (<code>synth_flats</code>)</a><a id="2.-Synthesizing-Flat-Fields-and-Raw-Transmission-Data-(synth_flats)-1"></a><a class="docs-heading-anchor-permalink" href="#2.-Synthesizing-Flat-Fields-and-Raw-Transmission-Data-(synth_flats)" title="Permalink"></a></h2><p><code>synth_flats</code> accepts clean projection data and incident source intensity, along with parameters controlling noise, detector miscalibration, and mechanical wobble (jitter).</p><p>Parameters:</p><ul><li><code>source_intensity::Real</code>: Incident photon flux level (controls Poisson noise SNR).</li><li><code>flatsnum::Int</code>: Number of flat-field images to generate.</li><li><code>detectors_miscallibration::Real</code>: Relative pixel sensitivity variation strength (causes ring/stripe artifacts).</li><li><code>jitter_projections::Real</code>: Random mechanical axis wobble / jitter amplitude (in pixels).</li><li><code>sigmasmooth::Int</code>: Gaussian blur parameter for miscalibration patches.</li></ul><pre><code class="language-julia hljs">proj_raw, flats, speckles_map = synth_flats(
+println(&quot;Clean projection dimensions [V, Angle, H]: &quot;, size(proj_clean))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Clean projection dimensions [V, Angle, H]: (64, 90, 64)</code></pre><h2 id="2.-Synthesizing-Flat-Fields-and-Raw-Transmission-Data-(synth_flats)"><a class="docs-heading-anchor" href="#2.-Synthesizing-Flat-Fields-and-Raw-Transmission-Data-(synth_flats)">2. Synthesizing Flat-Fields and Raw Transmission Data (<code>synth_flats</code>)</a><a id="2.-Synthesizing-Flat-Fields-and-Raw-Transmission-Data-(synth_flats)-1"></a><a class="docs-heading-anchor-permalink" href="#2.-Synthesizing-Flat-Fields-and-Raw-Transmission-Data-(synth_flats)" title="Permalink"></a></h2><p><code>synth_flats</code> models non-uniform illumination beams, detector defects, photon noise, and mechanical wobbles.</p><h3 id="Function-Arguments"><a class="docs-heading-anchor" href="#Function-Arguments">Function Arguments</a><a id="Function-Arguments-1"></a><a class="docs-heading-anchor-permalink" href="#Function-Arguments" title="Permalink"></a></h3><ul><li><code>proj_data_3d_clean</code>: Clean 3D projection data <code>[V, Angle, H]</code></li><li><code>source_intensity</code>: Incident photon flux (determines Poisson noise SNR, e.g. <code>30000</code>–<code>50000</code>)</li><li><code>flatsnum</code>: Number of flat-field images to synthesize (default: <code>20</code>)</li><li><code>detectors_miscallibration</code>: Degree of detector pixel sensitivity variation (causes stripe/ring artifacts)</li><li><code>specklesize</code>: Size of optical/scintillator dust speckles</li><li><code>jitter_projections</code>: Subpixel mechanical rotation axis jitter amplitude (in pixels)</li><li>Return values: <code>(proj_data_3d_raw, flats_3d, blurred_speckles_map)</code><ul><li><code>proj_data_3d_raw</code>: <code>UInt16</code> 3D array <code>[V, Angle, H]</code> (raw transmitted photon counts <span>$I$</span>)</li><li><code>flats_3d</code>: <code>UInt16</code> 3D array <code>[V, flatsnum, H]</code> (incident flat-field photon counts <span>$I_0$</span>)</li><li><code>blurred_speckles_map</code>: <code>Float32</code> 3D array <code>[V, H, variations]</code> (pixel sensitivity defect maps)</li></ul></li></ul><pre><code class="language-julia hljs"># Synthesize flat-field images and raw transmission projections
+source_flux = 30000.0f0
+proj_raw, flats_3d, speckles_map = synth_flats(
     proj_clean,
-    30000;
+    source_flux;
     flatsnum = 15,
     detectors_miscallibration = 0.05,
-    jitter_projections = 0.5,
+    specklesize = 3,
     sigmasmooth = 3,
+    jitter_projections = 0.5
 )
 
-println(&quot;Raw transmission data shape: &quot;, size(proj_raw), &quot;  type: &quot;, eltype(proj_raw), &quot;  range: &quot;, extrema(proj_raw))
-println(&quot;Flat-field images shape:     &quot;, size(flats), &quot;  type: &quot;, eltype(flats), &quot;  range: &quot;, extrema(flats))
-println(&quot;Sensitivity defect map shape: &quot;, size(speckles_map))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Raw transmission data shape: (64, 90, 64)  type: UInt16  range: (0x4ef7, 0xffff)
-Flat-field images shape:     (64, 15, 64)  type: UInt16  range: (0x661e, 0xffff)
-Sensitivity defect map shape: (64, 64, 3)</code></pre><p>Notice that both <code>proj_raw</code> and <code>flats</code> are <code>UInt16</code> count values representing physical pre-log photon transmission measurements.</p><h2 id="3.-Flat-Field-Normalization-and-Log-Correction-(Beer-Lambert-Law)"><a class="docs-heading-anchor" href="#3.-Flat-Field-Normalization-and-Log-Correction-(Beer-Lambert-Law)">3. Flat-Field Normalization and Log-Correction (Beer-Lambert Law)</a><a id="3.-Flat-Field-Normalization-and-Log-Correction-(Beer-Lambert-Law)-1"></a><a class="docs-heading-anchor-permalink" href="#3.-Flat-Field-Normalization-and-Log-Correction-(Beer-Lambert-Law)" title="Permalink"></a></h2><p>With synthetic pre-log data, we can apply standard CT pre-processing to retrieve the true line integrals (absorbance):</p><ol><li><p><strong>Master Flat Calculation</strong>: Average multiple flat fields to suppress Poisson noise: <span>$\bar{I}_{\text{flat}} = \frac{1}{N_{\text{flat}}} \sum_{k=1}^{N_{\text{flat}}} I_{\text{flat}, k}$</span></p></li><li><p><strong>Transmittance &amp; Absorbance Conversion</strong>: <span>$T = \frac{I_{\text{raw}}}{\bar{I}_{\text{flat}}}, \quad P = -\ln(T) = \int \mu \, ds$</span></p></li></ol><p>Calculate master flat (adding a tiny epsilon to prevent division by zero)</p><pre><code class="language-julia hljs">flat_ref = dropdims(mean(Float32.(flats), dims=2), dims=2) .+ 1.0f-5
-raw_float = Float32.(proj_raw)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">64×90×64 Array{Float32, 3}:
-[:, :, 1] =
- 29998.0  27126.0  30190.0  29525.0  …  29448.0  28791.0  28467.0  31645.0
- 40959.0  39221.0  41116.0  36420.0     36917.0  40218.0  39838.0  34542.0
- 47385.0  46775.0  47454.0  44854.0     45358.0  46726.0  47131.0  43551.0
- 51004.0  49453.0  50659.0  49045.0     48820.0  50532.0  49915.0  48288.0
- 55467.0  55476.0  54781.0  54131.0     53780.0  55523.0  55529.0  53089.0
- 55342.0  54653.0  55062.0  54886.0  …  55028.0  54344.0  55474.0  55157.0
- 56918.0  56585.0  56827.0  55987.0     56848.0  56791.0  56342.0  56281.0
- 58338.0  56673.0  58478.0  57205.0     56923.0  57486.0  57553.0  56949.0
- 61898.0  61056.0  61745.0  61629.0     60263.0  61981.0  61024.0  59918.0
- 60351.0  61101.0  59993.0  61655.0     60920.0  60095.0  60340.0  61276.0
-     ⋮                               ⋱                             
- 60300.0  60810.0  60164.0  60306.0  …  60540.0  60744.0  60163.0  59475.0
- 59327.0  60084.0  58892.0  60777.0     59479.0  60021.0  59279.0  59606.0
- 56998.0  57827.0  57014.0  58797.0     57482.0  57871.0  57257.0  58291.0
- 54443.0  55601.0  54656.0  55843.0     55628.0  54984.0  55119.0  56178.0
- 51079.0  52023.0  51249.0  51974.0     52804.0  51617.0  52105.0  53202.0
- 47798.0  48381.0  47920.0  48862.0  …  49493.0  48341.0  48547.0  50214.0
- 43401.0  44520.0  43102.0  45524.0     45709.0  44283.0  44187.0  46232.0
- 36872.0  39577.0  36809.0  40610.0     40301.0  38929.0  38347.0  41301.0
- 31306.0  28840.0  30953.0  30405.0     30452.0  29772.0  29271.0  32580.0
+println(&quot;Raw transmission shape [V, Angle, H]: &quot;, size(proj_raw), &quot;  type: &quot;, eltype(proj_raw), &quot;  range: &quot;, extrema(proj_raw))
+println(&quot;Flat-field images shape [V, flats, H]:   &quot;, size(flats_3d), &quot;  type: &quot;, eltype(flats_3d), &quot;  range: &quot;, extrema(flats_3d))
+println(&quot;Defect map shape [V, H, variations]:     &quot;, size(speckles_map))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Raw transmission shape [V, Angle, H]: (64, 90, 64)  type: UInt16  range: (0x503c, 0xffff)
+Flat-field images shape [V, flats, H]:   (64, 15, 64)  type: UInt16  range: (0x67b8, 0xffff)
+Defect map shape [V, H, variations]:     (64, 64, 3)</code></pre><h3 id="Visualizing-Flat-Fields-and-Detector-Defect-Maps"><a class="docs-heading-anchor" href="#Visualizing-Flat-Fields-and-Detector-Defect-Maps">Visualizing Flat-Fields and Detector Defect Maps</a><a id="Visualizing-Flat-Fields-and-Detector-Defect-Maps-1"></a><a class="docs-heading-anchor-permalink" href="#Visualizing-Flat-Fields-and-Detector-Defect-Maps" title="Permalink"></a></h3><p>We visualize an individual flat-field frame, the averaged master flat field, and the detector pixel sensitivity defect map (the source of stripe/ring artifacts).</p><pre><code class="language-julia hljs">flat_sample = Float32.(flats_3d[:, 1, :])
+flat_mean   = dropdims(mean(Float32.(flats_3d), dims = 2), dims = 2)
+speckle_pat = speckles_map[:, :, 1]
 
-[:, :, 2] =
- 29974.0  27431.0  30049.0  30039.0  …  29445.0  28564.0  28131.0  31684.0
- 41236.0  39551.0  41049.0  37048.0     36957.0  40133.0  39579.0  34557.0
- 47875.0  47053.0  47209.0  45739.0     45461.0  47034.0  46200.0  43456.0
- 50567.0  48842.0  50339.0  48394.0     48764.0  49230.0  49693.0  47989.0
- 55507.0  55102.0  54716.0  53583.0     53793.0  55102.0  54685.0  52593.0
- 55715.0  55107.0  56030.0  55242.0  …  55095.0  55634.0  56473.0  55802.0
- 56928.0  56720.0  56781.0  56627.0     56861.0  56852.0  56620.0  56638.0
- 57920.0  57019.0  57644.0  57236.0     56927.0  57614.0  57621.0  57109.0
- 60290.0  59395.0  58744.0  58600.0     60004.0  59087.0  58673.0  58350.0
- 59847.0  60713.0  59059.0  60073.0     60811.0  59988.0  59486.0  59415.0
-     ⋮                               ⋱                             
- 59672.0  60388.0  59281.0  60216.0  …  60523.0  60126.0  59811.0  59731.0
- 57879.0  58849.0  57172.0  57578.0     59216.0  57609.0  57083.0  58170.0
- 56465.0  57059.0  55849.0  56458.0     57324.0  56294.0  56360.0  56525.0
- 54641.0  55236.0  54182.0  55747.0     55585.0  54790.0  54615.0  55382.0
- 51606.0  52496.0  51487.0  53336.0     52898.0  52755.0  52161.0  53390.0
- 47924.0  48985.0  48467.0  50387.0  …  49574.0  49277.0  49180.0  50748.0
- 43176.0  44735.0  43175.0  45700.0     45723.0  44174.0  44265.0  46778.0
- 36405.0  39339.0  36037.0  39878.0     40260.0  37324.0  37495.0  40923.0
- 31118.0  28733.0  30567.0  30268.0     30465.0  29159.0  28853.0  31902.0
+fig1 = Figure(size = (1150, 360))
 
-[:, :, 3] =
- 29629.0  27235.0  29624.0  29154.0  …  29105.0  27985.0  27432.0  31400.0
- 39860.0  38215.0  40115.0  35487.0     36635.0  38525.0  39431.0  34316.0
- 45860.0  44531.0  45356.0  42726.0     44214.0  44349.0  44505.0  41944.0
- 49878.0  49447.0  50057.0  48431.0     48199.0  49631.0  49775.0  47239.0
- 54799.0  53856.0  54140.0  52950.0     53455.0  54084.0  52971.0  51624.0
- 56827.0  57070.0  56849.0  56794.0  …  55957.0  57068.0  56363.0  55199.0
- 56987.0  56959.0  57370.0  57276.0     56902.0  57102.0  57125.0  56812.0
- 57703.0  56837.0  57521.0  57163.0     57174.0  57642.0  57917.0  57557.0
- 58618.0  58294.0  58682.0  57871.0     58068.0  58800.0  59137.0  58224.0
- 58119.0  58658.0  58042.0  58119.0     58886.0  57420.0  58440.0  58783.0
-     ⋮                               ⋱                             
- 58682.0  59668.0  58647.0  59343.0  …  59550.0  59029.0  58085.0  58893.0
- 56968.0  57560.0  57290.0  57424.0     57359.0  57356.0  57249.0  57805.0
- 55923.0  56498.0  56401.0  56342.0     56311.0  56061.0  56705.0  57135.0
- 53765.0  54346.0  54383.0  54471.0     55108.0  54313.0  55267.0  55907.0
- 51457.0  52552.0  51187.0  52334.0     53046.0  52028.0  51924.0  53226.0
- 47787.0  48771.0  47786.0  49561.0  …  49769.0  48576.0  48325.0  50063.0
- 43242.0  44659.0  43413.0  45652.0     45782.0  44380.0  44341.0  46371.0
- 35352.0  38663.0  35486.0  39179.0     39699.0  36917.0  37161.0  40702.0
- 29967.0  27547.0  29594.0  29080.0     29569.0  27754.0  27764.0  31121.0
+ax1 = Axis(fig1[1, 1], title = &quot;Single Flat Field (#1)&quot;, xlabel = &quot;Detector H&quot;, ylabel = &quot;Detector V&quot;, aspect = DataAspect(), yreversed = true)
+hm1 = heatmap!(ax1, flat_sample, colormap = :cividis)
+Colorbar(fig1[1, 2], hm1, label = &quot;Counts (UInt16)&quot;)
 
-;;; … 
+ax2 = Axis(fig1[1, 3], title = &quot;Averaged Flat Field (15 frames)&quot;, xlabel = &quot;Detector H&quot;, ylabel = &quot;Detector V&quot;, aspect = DataAspect(), yreversed = true)
+hm2 = heatmap!(ax2, flat_mean, colormap = :cividis)
+Colorbar(fig1[1, 4], hm2, label = &quot;Counts (UInt16)&quot;)
 
-[:, :, 62] =
- 29983.0  26792.0  30158.0  29424.0  …  29500.0  28306.0  27758.0  31688.0
- 41401.0  39560.0  40426.0  36203.0     38116.0  40204.0  39544.0  34734.0
- 47216.0  45713.0  46104.0  43885.0     44984.0  45410.0  45586.0  42743.0
- 51876.0  51054.0  50717.0  49307.0     50330.0  50667.0  50056.0  48040.0
- 55079.0  54646.0  53832.0  52890.0     54910.0  53645.0  53167.0  52245.0
- 55825.0  55554.0  54975.0  54189.0  …  55630.0  54903.0  54896.0  54286.0
- 56627.0  56348.0  56421.0  56768.0     56327.0  57180.0  56735.0  55832.0
- 57846.0  57799.0  57390.0  57789.0     57054.0  57958.0  57462.0  56879.0
- 59041.0  59236.0  58848.0  58903.0     59132.0  59834.0  59532.0  58625.0
- 58597.0  58276.0  58442.0  58631.0     59524.0  58300.0  59332.0  59106.0
-     ⋮                               ⋱                             
- 58598.0  58608.0  58428.0  58090.0  …  58067.0  58620.0  58690.0  58672.0
- 58551.0  58908.0  57581.0  58395.0     58586.0  58182.0  57846.0  58872.0
- 56385.0  56203.0  56660.0  56701.0     56935.0  55790.0  56960.0  57471.0
- 54274.0  54656.0  54794.0  55149.0     55162.0  54983.0  55775.0  56052.0
- 51085.0  51833.0  51309.0  51774.0     52473.0  51551.0  51631.0  53211.0
- 48687.0  50040.0  49034.0  49677.0  …  50361.0  49332.0  49758.0  50931.0
- 43985.0  45952.0  44096.0  46536.0     46427.0  44727.0  45009.0  47533.0
- 36831.0  38956.0  38067.0  40735.0     40563.0  39112.0  39137.0  42226.0
- 31947.0  29809.0  33156.0  32516.0     30873.0  31774.0  31757.0  34601.0
+ax3 = Axis(fig1[1, 5], title = &quot;Detector Sensitivity Defect Map&quot;, xlabel = &quot;Detector H&quot;, ylabel = &quot;Detector V&quot;, aspect = DataAspect(), yreversed = true)
+hm3 = heatmap!(ax3, speckle_pat, colormap = :magma)
+Colorbar(fig1[1, 6], hm3, label = &quot;Defect Weight&quot;)
 
-[:, :, 63] =
- 30253.0  26980.0  30147.0  29948.0  …  29592.0  28780.0  28131.0  31605.0
- 40712.0  38830.0  40391.0  36833.0     37121.0  39459.0  39017.0  34554.0
- 45789.0  45332.0  45780.0  44189.0     43924.0  45394.0  45312.0  42703.0
- 49683.0  48730.0  49594.0  47922.0     48874.0  49601.0  48838.0  47353.0
- 52912.0  52254.0  53281.0  51382.0     52082.0  52471.0  53026.0  51271.0
- 55635.0  55077.0  55486.0  54996.0  …  54814.0  55470.0  55171.0  54364.0
- 56433.0  55984.0  56076.0  56416.0     56367.0  56823.0  56226.0  55871.0
- 57700.0  56925.0  57419.0  56936.0     56645.0  57449.0  57389.0  56335.0
- 59729.0  59301.0  59484.0  59214.0     59453.0  60381.0  59274.0  58546.0
- 58864.0  60213.0  59621.0  60175.0     59924.0  59503.0  59476.0  59966.0
-     ⋮                               ⋱                             
- 58901.0  59112.0  58674.0  58566.0  …  58850.0  58698.0  58683.0  59186.0
- 57706.0  57586.0  57885.0  57410.0     58043.0  57550.0  57629.0  58315.0
- 57015.0  57341.0  58752.0  57252.0     57083.0  57888.0  58819.0  58673.0
- 55097.0  56571.0  56142.0  57206.0     56283.0  56888.0  57339.0  58187.0
- 51512.0  51802.0  51690.0  53121.0     53032.0  51688.0  52223.0  54050.0
- 48869.0  50697.0  48888.0  50455.0  …  50229.0  49862.0  49585.0  50927.0
- 44273.0  45282.0  43653.0  45973.0     46298.0  44191.0  43896.0  46707.0
- 38321.0  40352.0  37906.0  41656.0     41222.0  40044.0  38956.0  41958.0
- 33530.0  31647.0  32801.0  33438.0     32764.0  32560.0  31006.0  34281.0
+fig1</code></pre><img src="7e07e920.png" alt="Example block output"/><h2 id="3.-Flat-Field-Normalization-and-Logarithmic-Conversion"><a class="docs-heading-anchor" href="#3.-Flat-Field-Normalization-and-Logarithmic-Conversion">3. Flat-Field Normalization and Logarithmic Conversion</a><a id="3.-Flat-Field-Normalization-and-Logarithmic-Conversion-1"></a><a class="docs-heading-anchor-permalink" href="#3.-Flat-Field-Normalization-and-Logarithmic-Conversion" title="Permalink"></a></h2><p>In standard CT reconstruction pipelines, preprocessing consists of two main steps:</p><ol><li><strong>Transmittance <span>$T$</span> Calculation</strong>: Divide raw transmitted counts <span>$I_{\text{raw}}$</span> by the averaged master flat <span>$\bar{I}_{\text{flat}}$</span>: <span>$T = \frac{I_{\text{raw}}}{\bar{I}_{\text{flat}}}$</span> (Dense regions attenuate photons so <span>$T &lt; 1$</span>, while open beam regions have <span>$T \approx 1$</span>).</li><li><strong>Line Integral (Absorbance) Conversion</strong>: Apply the negative natural logarithm based on the Beer-Lambert law: <span>$P = -\ln(T) = -\ln\left(\frac{I_{\text{raw}}}{\bar{I}_{\text{flat}}}\right)$</span></li></ol><pre><code class="language-julia hljs"># 1. Reference flat field (with small epsilon to avoid division by zero)
+flat_ref = flat_mean .+ 1.0f-5
+raw_float = Float32.(proj_raw)
 
-[:, :, 64] =
- 30150.0  26959.0  30177.0  29497.0  …  29517.0  28938.0  28186.0  31714.0
- 40380.0  39124.0  40688.0  36345.0     37248.0  39584.0  39298.0  34753.0
- 45782.0  45350.0  45799.0  43546.0     43935.0  45122.0  45240.0  42576.0
- 49981.0  49072.0  49979.0  48830.0     48366.0  50254.0  49075.0  47696.0
- 53667.0  53651.0  54001.0  53064.0     52305.0  53958.0  53601.0  52108.0
- 55301.0  54949.0  55346.0  55061.0  …  55073.0  55465.0  55131.0  54661.0
- 56008.0  56172.0  55839.0  55948.0     56094.0  56164.0  55974.0  56110.0
- 57659.0  57195.0  57699.0  57424.0     56977.0  57830.0  57702.0  56948.0
- 59437.0  59045.0  59095.0  58552.0     58965.0  59507.0  59074.0  58496.0
- 58795.0  59546.0  59092.0  58807.0     59449.0  58648.0  58875.0  59339.0
-     ⋮                               ⋱                             
- 58329.0  57967.0  58622.0  58834.0  …  58731.0  58375.0  58598.0  59021.0
- 58734.0  58345.0  58673.0  59462.0     58239.0  58790.0  58406.0  58434.0
- 59288.0  59376.0  59635.0  60197.0     59222.0  60314.0  59476.0  59376.0
- 56373.0  58470.0  56647.0  58874.0     58156.0  58342.0  57744.0  59043.0
- 51718.0  52517.0  51649.0  53579.0     53246.0  52009.0  52335.0  54514.0
- 48624.0  50252.0  48662.0  50252.0  …  50129.0  49229.0  49683.0  50769.0
- 43426.0  44285.0  43459.0  45963.0     45564.0  44453.0  43741.0  46609.0
- 36640.0  39446.0  37132.0  40259.0     40508.0  38276.0  38376.0  41555.0
- 30830.0  28210.0  31396.0  29347.0     31201.0  28762.0  29544.0  32678.0</code></pre><p>Compute transmittance and negative logarithm</p><pre><code class="language-julia hljs">proj_normalized = zeros(Float32, size(proj_raw))
-for a in 1:size(proj_raw, 2)
+# 2. Calculate transmittance and negative logarithm per projection angle
+proj_normalized = zeros(Float32, size(proj_raw))
+
+for a in 1:length(angles)
+    # Transmittance T = I / I0
     transmittance = clamp.(raw_float[:, a, :] ./ flat_ref, 1.0f-6, 1.0f0)
+    # Absorbance P = -ln(T)
     proj_normalized[:, a, :] .= -log.(transmittance)
 end
 
-println(&quot;Normalized sinogram ready for reconstruction: &quot;, size(proj_normalized))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Normalized sinogram ready for reconstruction: (64, 90, 64)</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../projections/">« Projections</a><a class="docs-footer-nextpage" href="../../api/core/">Core »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Saturday 26 September 2026 08:08">Saturday 26 September 2026</span>. Using Julia version 1.13.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+# Rescale to match clean ground-truth amplitude for visual comparison
+scale = maximum(proj_clean) / (maximum(proj_normalized) &gt; 0 ? maximum(proj_normalized) : 1.0f0)
+proj_normalized .*= scale
+
+println(&quot;Flat-field normalization and log conversion completed.&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Flat-field normalization and log conversion completed.</code></pre><h2 id="4.-Visualizing-Preprocessing-Results"><a class="docs-heading-anchor" href="#4.-Visualizing-Preprocessing-Results">4. Visualizing Preprocessing Results</a><a id="4.-Visualizing-Preprocessing-Results-1"></a><a class="docs-heading-anchor-permalink" href="#4.-Visualizing-Preprocessing-Results" title="Permalink"></a></h2><p>We compare a single 2D radiograph at 0° across the pipeline:</p><ul><li><strong>Uncorrected (Raw Transmission Counts)</strong>: Objects appear as dark attenuation shadows on top of non-uniform illumination and speckles.</li><li><strong>Normalized Radiograph</strong>: Flat-field division and negative logarithm cancel the beam profile, faithfully restoring positive attenuation line integrals.</li><li><strong>Clean Ground Truth</strong>: The ideal numerical projection for comparison.</li></ul><pre><code class="language-julia hljs">fig2 = Figure(size = (1100, 360))
+
+# 1. Uncorrected raw transmission counts
+ax2_1 = Axis(fig2[1, 1], title = &quot;1. Raw Measured (Counts)&quot;, xlabel = &quot;Detector H&quot;, ylabel = &quot;Detector V&quot;, aspect = DataAspect(), yreversed = true)
+hm2_1 = heatmap!(ax2_1, Float32.(proj_raw[:, 1, :]), colormap = :cividis)
+Colorbar(fig2[1, 2], hm2_1, label = &quot;Counts (UInt16)&quot;)
+
+# 2. After flat-field correction
+ax2_2 = Axis(fig2[1, 3], title = &quot;2. After Flat-Field Correction&quot;, xlabel = &quot;Detector H&quot;, ylabel = &quot;Detector V&quot;, aspect = DataAspect(), yreversed = true)
+hm2_2 = heatmap!(ax2_2, proj_normalized[:, 1, :], colormap = :inferno)
+
+# 3. Clean ground truth
+ax2_3 = Axis(fig2[1, 4], title = &quot;3. Clean Ground Truth&quot;, xlabel = &quot;Detector H&quot;, ylabel = &quot;Detector V&quot;, aspect = DataAspect(), yreversed = true)
+hm2_3 = heatmap!(ax2_3, proj_clean[:, 1, :], colormap = :inferno)
+
+Colorbar(fig2[1, 5], hm2_3, label = &quot;Attenuation&quot;)
+fig2</code></pre><img src="6e4ca98d.png" alt="Example block output"/><h3 id="Sinogram-Slice-Comparison"><a class="docs-heading-anchor" href="#Sinogram-Slice-Comparison">Sinogram Slice Comparison</a><a id="Sinogram-Slice-Comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Sinogram-Slice-Comparison" title="Permalink"></a></h3><p>We extract a 2D sinogram slice at the central detector height (<span>$V = N/2$</span>) and compare the normalized result with the ideal projection. Fine vertical stripes arising from detector miscalibration are clearly visible, faithfully mirroring real acquisition artifacts.</p><pre><code class="language-julia hljs">mid_slice = det_v ÷ 2
+
+fig3 = Figure(size = (800, 380))
+
+ax3_1 = Axis(fig3[1, 1], title = &quot;Normalized Sinogram (Slice $(mid_slice))&quot;, xlabel = &quot;Detector H&quot;, ylabel = &quot;Angle (deg)&quot;, yreversed = true)
+heatmap!(ax3_1, 1:det_u, geom3d.angles_deg, proj_normalized[mid_slice, :, :]&#39;, colormap = :inferno)
+
+ax3_2 = Axis(fig3[1, 2], title = &quot;Clean Ground Truth (Slice $(mid_slice))&quot;, xlabel = &quot;Detector H&quot;, ylabel = &quot;Angle (deg)&quot;, yreversed = true)
+hm3_2 = heatmap!(ax3_2, 1:det_u, geom3d.angles_deg, proj_clean[mid_slice, :, :]&#39;, colormap = :inferno)
+
+Colorbar(fig3[1, 3], hm3_2, label = &quot;Line Integral&quot;)
+fig3</code></pre><img src="9789c1b3.png" alt="Example block output"/><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><p>In this notebook, we simulated CT acquisition physics and standard flat-field correction using <code>TomoPhantom.jl</code>:</p><ul><li><strong><code>synth_flats</code></strong>: Comprehensive simulation of non-uniform X-ray beam profiles, scintillator dust, detector miscalibrations, Poisson photon noise, and mechanical jitter</li><li><strong>Physically Grounded Pre-log Data</strong>: Outputting realistic <code>UInt16</code> count values modeling exponential attenuation (<span>$e^{-\mu L}$</span>)</li><li><strong>Flat-Field Correction Pipeline</strong>: Master flat averaging and Beer-Lambert logarithmic conversion</li><li><strong>Visual Validation with CairoMakie</strong>: Verifying that illumination gradients are eliminated and linear attenuation projections are restored for reconstruction</li></ul><p>For 2D and 3D stationary phantoms and temporal (4D) simulations, refer to <code>demo_2d.ipynb</code>, <code>demo_3d.ipynb</code>, <code>demo_temporal_4d.ipynb</code>, and the official documentation.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../3d-phantom/">« 3D Phantoms &amp; Projections</a><a class="docs-footer-nextpage" href="../temporal-4d/">Temporal (4D) Phantoms »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Saturday 26 September 2026 08:40">Saturday 26 September 2026</span>. Using Julia version 1.13.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

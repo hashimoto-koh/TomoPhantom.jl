@@ -24,7 +24,7 @@ Instead, the build step fetches the pinned upstream C sources and phantom librar
 
 - **[Introduction](introduction.md)**: Learn about TomoPhantom and this Julia port.
 - **[Installation Guide](installation.md)**: Instructions for adding the package and compiling dependencies.
-- **Tutorials**: Get started quickly with practical examples for [2D Phantoms](tutorials/2d-phantom.md), [Models](tutorials/models.md), [Projections](tutorials/projections.md), and [Flat-field Synthesis](tutorials/flat-fields.md).
+- **Tutorials**: Get started quickly with practical examples for [2D Phantoms & Sinograms](tutorials/2d-phantom.md), [3D Phantoms & Projections](tutorials/3d-phantom.md), [Flat-field Synthesis](tutorials/flat-fields.md), and [Temporal (4D) Phantoms](tutorials/temporal-4d.md).
 - **API Reference**: Detailed breakdown of exported modules and functions including [Core Structures](api/core.md), [Generators](api/generators.md), [Projections](api/projections.md), [Artefacts](api/artefacts.md), [Flat-field Synthesis](api/flatsgen.md), and [Quality Metrics](api/qualitymetrics.md).
 
 Explore the sections via the sidebar to find what you need.

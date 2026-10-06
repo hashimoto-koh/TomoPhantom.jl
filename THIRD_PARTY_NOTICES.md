@@ -4,7 +4,10 @@ This repository, `TomoPhantom.jl`, is distributed under the Apache License 2.0. 
 
 ## Upstream Project
 
-`TomoPhantom.jl` is a Julia port of the upstream `TomoPhantom` project:
+`TomoPhantom.jl` is an unofficial Julia port and interface built upon the upstream `TomoPhantom` project:
+
+This project is **not** affiliated with, endorsed by, or maintained by Daniil Kazantsev,
+The University of Manchester, or the upstream TomoPhantom contributors.
 
 - upstream repository: <https://github.com/dkazanc/TomoPhantom>
 - upstream documentation: <https://dkazanc.github.io/TomoPhantom/>

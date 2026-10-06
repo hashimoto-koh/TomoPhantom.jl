@@ -1,8 +1,17 @@
 # About TomoPhantom Core
 
+`TomoPhantom.jl` is an unofficial Julia port of
+[TomoPhantom](https://github.com/dkazanc/TomoPhantom).
+
+This project is **not** affiliated with, endorsed by, or maintained by Daniil Kazantsev,
+The University of Manchester, or the upstream TomoPhantom contributors.
+
+TomoPhantom is originally developed by Daniil Kazantsev and contributors at The University of Manchester
+and is distributed under the Apache License 2.0.
+
 The [TomoPhantom](https://github.com/dkazanc/TomoPhantom) core library is an open-source software tool widely utilized in the imaging sciences for generating highly customizable phantom models and performing analytical projections.
 
-`TomoPhantom.jl` is a Julia port built around that upstream core. This repository is developed with explicit respect for the original project and with gratitude to Daniil Kazantsev and all contributors who made the upstream implementation and documentation publicly available.
+This repository is developed with explicit respect for the original project and with gratitude to Daniil Kazantsev and all contributors who made the upstream implementation and documentation publicly available.
 
 This repository does not vendor the upstream `TomoPhantom` source tree. Instead, the required native sources and phantom library data are fetched during `Pkg.build("TomoPhantom")`, and the Julia package interfaces with the resulting native library directly rather than through the Python wrapper layer. The design target is direct native API integration from Julia, centered on the upstream C core and avoiding Python-mediated wrapping.
 

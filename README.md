@@ -3,9 +3,16 @@
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://hashimoto-koh.github.io/TomoPhantom.jl/stable/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://hashimoto-koh.github.io/TomoPhantom.jl/dev/)
 
-`TomoPhantom.jl` is a Julia port of [TomoPhantom](https://github.com/dkazanc/TomoPhantom), the analytical phantom and sinogram generation project by Daniil Kazantsev and contributors.
+`TomoPhantom.jl` is an unofficial Julia port of
+[TomoPhantom](https://github.com/dkazanc/TomoPhantom), the analytical phantom and sinogram generation project.
 
-This repository exists because the original `TomoPhantom` project is valuable, carefully designed, and widely useful in tomography research. The Julia port is developed with explicit respect for that work, and with sincere gratitude to the original authors for publishing and maintaining the upstream project.
+This project is **not** affiliated with, endorsed by, or maintained by Daniil Kazantsev,
+The University of Manchester, or the upstream TomoPhantom contributors.
+
+TomoPhantom is originally developed by Daniil Kazantsev and contributors at The University of Manchester
+and is distributed under the Apache License 2.0.
+
+This repository exists because the original `TomoPhantom` project is valuable, carefully designed, and widely useful in tomography research. `TomoPhantom.jl` is developed with explicit respect for that work, and with sincere gratitude to the original authors for publishing and maintaining the upstream project.
 
 ## What This Repository Is
 

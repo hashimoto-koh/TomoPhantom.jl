@@ -1,9 +1,9 @@
+# build artifacts
 deps/build/
 deps/usr/
 deps/upstream-src/
 deps/build.log
 deps/deps-generated.jl
-.codex
 
 # Docs build artifacts
 docs/build/
@@ -11,11 +11,11 @@ docs/src/tutorials/
 
 # Default Julia ignores
 /Manifest.toml
+/docs/Manifest.toml
 
-# other
+# Local development files
 /AGENTS.md
-/PUBLISHING.md
-/tmp/
+/private/
 /.vscode/
 /repro/
 .ipynb_checkpoints/
